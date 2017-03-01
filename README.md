@@ -16,7 +16,7 @@
 
 效果如图:
 
-![image](http://om4qaz231.bkt.clouddn.com/demo22.gif)
+![image](http://p1.bpimg.com/1949/91265a1c314bbbcb.gif)
 
 界面风格高仿微信, 只不过微信的编辑处理是作用于图片, 而我们的是基于视频, 所以如果你有需求, 把视频编辑处理换成图片编辑, 更是简单.
 
