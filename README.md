@@ -67,7 +67,6 @@ MediaRecorderBase类还可以设置视频各个参数, 如:
 这个view稍微有点麻烦, 但我单独写了一篇文章[点击跳转](https://github.com/Zhaoss/GestureViewDemo), 非常详细的讲解了这个view, 而且封装的非常好, 只要addView到布局中就可以使用了, 大家可以点击链接过去看一下.
 
 ##5.基于ffmpeg的图片和视频合成处理
-![image](http://upload-images.jianshu.io/upload_images/2582948-93acd649d6218aee.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 这也是demo的最后一步, 将涂鸦,和表情文字全部合成到视频当中, 首先是得到需要合成的图片, 我们可以通过view.draw(Canvas canvas),得到布局的bitmap:
 
