@@ -96,12 +96,7 @@ public class MainActivity extends BaseActivity implements MediaRecorderBase.OnEn
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                initMediaRecorderState();
-                LinkedList<MediaObject.MediaPart> medaParts = mMediaObject.getMedaParts();
-                for (MediaObject.MediaPart part : medaParts){
-                    mMediaObject.removePart(part, true);
-                }
-                mMediaRecorder.startPreview();
+                onBackPressed();
             }
         });
 
@@ -195,6 +190,20 @@ public class MainActivity extends BaseActivity implements MediaRecorderBase.OnEn
     }
 
     @Override
+    public void onBackPressed() {
+        if(rb_start.getVisibility() != View.VISIBLE) {
+            initMediaRecorderState();
+            LinkedList<MediaObject.MediaPart> medaParts = mMediaObject.getMedaParts();
+            for (MediaObject.MediaPart part : medaParts) {
+                mMediaObject.removePart(part, true);
+            }
+            mMediaRecorder.startPreview();
+        }else{
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public void onWindowFocusChanged(boolean hasFocus) {
 
         if(backX == -1) {
@@ -242,6 +251,7 @@ public class MainActivity extends BaseActivity implements MediaRecorderBase.OnEn
             textView.setText("视频编译中"+progress);
         }
     }
+
 
     /**
      * 视频编辑完成
