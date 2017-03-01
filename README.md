@@ -20,7 +20,7 @@
 界面风格高仿微信, 只不过微信的编辑处理是作用于图片, 而我们的是基于视频, 所以如果你有需求, 把视频编辑处理换成图片编辑, 更是简单.
 
 ##1.实现使用ffmpeg录制视频
-![image](http://upload-images.jianshu.io/upload_images/2582948-d1fa96643d11b381.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![image](http://upload-images.jianshu.io/upload_images/2582948-d1fa96643d11b381.png?imageMogr2/auto-orient/strip)
 
 首先导入lib库和ffmpeg的录制java文件, 我使用的是第三方VCamera封装的ffmpeg, 他没有jar包, 所以需要将con.yixia包下的所有文件都copy过来,
 
@@ -52,7 +52,7 @@ MediaRecorderBase类还可以设置视频各个参数, 如:
 
 ##3.自定义view, 实现手绘涂鸦
 
-![image](http://upload-images.jianshu.io/upload_images/2582948-bb858f472413c026.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![image](http://upload-images.jianshu.io/upload_images/2582948-bb858f472413c026.png?imageMogr2/auto-orient/strip)
 
 自定义TuyaView继承View, 重写onTouch(), 在手指点下和移动时实时绘制触摸轨迹:
 
