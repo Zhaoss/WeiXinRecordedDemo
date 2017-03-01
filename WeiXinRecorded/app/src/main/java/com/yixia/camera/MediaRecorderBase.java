@@ -39,6 +39,9 @@ import java.util.List;
  */
 public abstract class MediaRecorderBase implements Callback, PreviewCallback, IMediaRecorder {
 
+	public static int VIDEO_WIDTH = 800;
+	public static int VIDEO_HEIGHT = 480;
+
 	/** 未知错误 */
 	public static final int MEDIA_ERROR_UNKNOWN = 1;
 	/** 预览画布设置错误 */
@@ -316,6 +319,20 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 			mVideoBitrate = bitRate;
 	}
 
+	/** 设置帧数 */
+	public void setVideoRota(int rota) {
+		if (rota > 0)
+			mFrameRate = rota;
+	}
+
+	/**
+	 * 设置视频的宽高
+	 */
+	public void setVideoRecordedSize(int width, int height){
+		VIDEO_WIDTH = width;
+		VIDEO_HEIGHT = height;
+	}
+
 	/**
 	 * 开始预览
 	 */
@@ -432,7 +449,7 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 		Size previewSize = mParameters.getPreviewSize();
 		mParameters.setPreviewFrameRate(mFrameRate);
 		// mParameters.setPreviewFpsRange(15 * 1000, 20 * 1000);
-		mParameters.setPreviewSize(UtilityAdapter.VIDEO_WIDTH, UtilityAdapter.VIDEO_HEIGHT);// 3:2
+		mParameters.setPreviewSize(MediaRecorderBase.VIDEO_WIDTH, MediaRecorderBase.VIDEO_HEIGHT);// 3:2
 
 		// 设置输出视频流尺寸，采样率
 		mParameters.setPreviewFormat(ImageFormat.NV21);
@@ -484,7 +501,6 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 				if (mOnErrorListener != null) {
 					mOnErrorListener.onVideoError(MEDIA_ERROR_CAMERA_SET_PREVIEW_DISPLAY, 0);
 				}
-				Log.e("Yixia", "setPreviewDisplay fail " + e.getMessage());
 			}
 
 			//设置摄像头参数

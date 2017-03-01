@@ -13,12 +13,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.yixia.camera.MediaRecorderBase;
 import com.yixia.videoeditor.adapter.UtilityAdapter;
 
 import java.io.BufferedOutputStream;
@@ -452,7 +450,7 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
         rl_tuya.draw(new Canvas(bitmap));
         //这步是根据视频尺寸来调整图片宽高,和视频保持一致
         Matrix matrix = new Matrix();
-        matrix.postScale(UtilityAdapter.VIDEO_HEIGHT * 1f / bitmap.getWidth(), UtilityAdapter.VIDEO_WIDTH * 1f / bitmap.getHeight());
+        matrix.postScale(MediaRecorderBase.VIDEO_HEIGHT * 1f / bitmap.getWidth(), MediaRecorderBase.VIDEO_WIDTH * 1f / bitmap.getHeight());
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
         File file = new File(MyApplication.VIDEO_PATH +"tuya.png");//将要保存图片的路径

@@ -51,7 +51,7 @@ public class FileUtils {
 		try {
 			digest = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			Log.e("FileUtils", "Exception while getting digest", e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -59,7 +59,7 @@ public class FileUtils {
 		try {
 			is = new FileInputStream(updateFile);
 		} catch (FileNotFoundException e) {
-			Log.e("FileUtils", "Exception while getting FileInputStream", e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -83,7 +83,7 @@ public class FileUtils {
 			try {
 				is.close();
 			} catch (IOException e) {
-				Log.e("FileUtils", "Exception on closing MD5 input stream", e);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -94,7 +94,7 @@ public class FileUtils {
 		try {
 			digest = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			Log.e("FileUtils", "Exception while getting digest", e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -102,7 +102,7 @@ public class FileUtils {
 		try {
 			is = new FileInputStream(updateFile);
 		} catch (FileNotFoundException e) {
-			Log.e("FileUtils", "Exception while getting FileInputStream", e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -135,7 +135,7 @@ public class FileUtils {
 			try {
 				is.close();
 			} catch (IOException e) {
-				Log.e("FileUtils", "Exception on closing MD5 input stream", e);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -244,7 +244,6 @@ public class FileUtils {
 	/**
 	 * read file
 	 * 
-	 * @param filePath
 	 * @param charsetName
 	 *            The name of a supported {@link java.nio.charset.Charset
 	 *            </code>charset<code>}

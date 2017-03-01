@@ -146,11 +146,11 @@ public class VCamera {
 			out.flush();
 			result = true;
 		} catch (FileNotFoundException e) {
-			Log.e("upload", e);
+			e.printStackTrace();
 		} catch (IOException e) {
-			Log.e("upload", e);
+			e.printStackTrace();
 		} catch (Exception e) {
-			Log.e("upload", e);
+			e.printStackTrace();
 		} finally {
 			try {
 				if (in != null) {

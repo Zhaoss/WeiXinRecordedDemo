@@ -10,9 +10,6 @@ public class UtilityAdapter {
 		System.loadLibrary("utility");
 	}
 
-	public static int VIDEO_WIDTH = 800;
-	public static int VIDEO_HEIGHT = 480;
-
 	/** 初始化底层库 */
 	public static native void FFmpegInit(Object context, String settings);
 
