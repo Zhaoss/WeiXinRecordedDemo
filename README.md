@@ -67,7 +67,7 @@ MediaRecorderBase类还可以设置视频各个参数, 如:
 
 ![image](http://upload-images.jianshu.io/upload_images/2582948-34296a81d7d95621.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-这个view稍微有点麻烦, 但我单独写了一篇文章<a href="http://www.jianshu.com/p/15f6efd66f83" target="_blank">简书链接</a>, 非常详细的讲解了这个view, 而且封装的非常好, 只要addView到布局中就可以使用了, 大家可以点击链接过去看一下.
+这个view稍微有点麻烦, 但我单独写了一篇文章<a href="http://www.jianshu.com/p/15f6efd66f83" target="_blank">点击跳转</a>, 非常详细的讲解了这个view, 而且封装的非常好, 只要addView到布局中就可以使用了, 大家可以点击链接过去看一下.
 
 ##5.基于ffmpeg的图片和视频合成处理
 
