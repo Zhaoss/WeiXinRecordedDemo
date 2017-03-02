@@ -1,5 +1,7 @@
 # WeiXinRecordedDemo
 
+[简书链接](http://www.jianshu.com/p/15f6efd66f83)
+
 ```
 功能主要包含5点: 
 
