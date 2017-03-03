@@ -68,7 +68,7 @@ MediaRecorderBase类还可以设置视频各个参数, 如:
 
 ![image](http://om4qaz231.bkt.clouddn.com/WeiXin10.png)
 
-这个view稍微有点麻烦, 但我单独写了一篇文章<a href="http://www.jianshu.com/p/15f6efd66f83" target="_blank">点击跳转</a>, 非常详细的讲解了这个view, 而且封装的非常好, 只要addView到布局中就可以使用了, 大家可以点击链接过去看一下.
+这个view稍微有点麻烦, 但我单独写了一篇文章<a href="https://github.com/Zhaoss/GestureViewDemo" target="_blank">点击跳转</a>, 非常详细的讲解了这个view, 而且封装的非常好, 只要addView到布局中就可以使用了, 大家可以点击链接过去看一下.
 
 ##5.基于ffmpeg的图片和视频合成处理
 
