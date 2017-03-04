@@ -1,5 +1,3 @@
-# WeiXinRecordedDemo
-
 ```
 功能主要包含5点: 
 
