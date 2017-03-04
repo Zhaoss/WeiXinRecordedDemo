@@ -1,7 +1,5 @@
 # WeiXinRecordedDemo
 
-<a href="http://www.jianshu.com/p/15f6efd66f83" target="_blank">简书链接</a>
-
 ```
 功能主要包含5点: 
 
