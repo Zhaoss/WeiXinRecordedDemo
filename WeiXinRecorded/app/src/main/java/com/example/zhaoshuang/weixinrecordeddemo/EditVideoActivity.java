@@ -71,7 +71,6 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
     private RelativeLayout rl_bottom;
     private TextView tv_hint_delete;
     private int dp100;
-    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -529,7 +528,7 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
                 new AsyncTask<Void, Void, String>() {
                     @Override
                     protected void onPreExecute() {
-                        textView = showProgressDialog();
+                        showProgressDialog();
                     }
                     @Override
                     protected String doInBackground(Void... params) {

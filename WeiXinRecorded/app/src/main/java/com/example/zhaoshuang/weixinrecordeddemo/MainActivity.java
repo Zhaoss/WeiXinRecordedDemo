@@ -248,7 +248,7 @@ public class MainActivity extends BaseActivity implements MediaRecorderBase.OnEn
     @Override
     public void onEncodeProgress(int progress) {
         if(textView != null){
-            textView.setText("视频编译中"+progress);
+            textView.setText("视频编译中 "+progress+"%");
         }
     }
 
