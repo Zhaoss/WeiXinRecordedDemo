@@ -538,6 +538,10 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 		}
 	}
 
+	public Camera getCamera(){
+		return camera;
+	}
+
 	/** 预览调用成功，子类可以做一些操作 */
 	protected void onStartPreviewSuccess() {
 

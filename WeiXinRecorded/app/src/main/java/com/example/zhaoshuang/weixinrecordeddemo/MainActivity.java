@@ -3,17 +3,13 @@ package com.example.zhaoshuang.weixinrecordeddemo;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.Intent;
-import android.graphics.PixelFormat;
-import android.hardware.Camera;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -23,7 +19,6 @@ import com.yixia.camera.MediaRecorderBase;
 import com.yixia.camera.MediaRecorderNative;
 import com.yixia.camera.VCamera;
 import com.yixia.camera.model.MediaObject;
-import com.yixia.camera.util.FileUtils;
 import com.yixia.videoeditor.adapter.UtilityAdapter;
 
 import java.io.File;
@@ -40,7 +35,7 @@ public class MainActivity extends BaseActivity implements MediaRecorderBase.OnEn
     private static final int REQUEST_KEY = 100;
     private MediaRecorderNative mMediaRecorder;
     private MediaObject mMediaObject;
-    private SurfaceView sv_ffmpeg;
+    private FocusSurfaceView sv_ffmpeg;
     private RecordedButton rb_start;
     private int maxDuration = 3000;
     private boolean recordedOver;
@@ -58,7 +53,7 @@ public class MainActivity extends BaseActivity implements MediaRecorderBase.OnEn
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
-        sv_ffmpeg = (SurfaceView) findViewById(R.id.sv_ffmpeg);
+        sv_ffmpeg = (FocusSurfaceView) findViewById(R.id.sv_ffmpeg);
         rb_start = (RecordedButton) findViewById(R.id.rb_start);
         vv_play = (MyVideoView) findViewById(R.id.vv_play);
         iv_finish = (ImageView) findViewById(R.id.iv_finish);
@@ -68,6 +63,8 @@ public class MainActivity extends BaseActivity implements MediaRecorderBase.OnEn
         dp100 = getResources().getDimension(R.dimen.dp100);
 
         initMediaRecorder();
+
+        sv_ffmpeg.setTouchFocus(mMediaRecorder);
 
         rb_start.setMax(maxDuration);
         rb_start.setOnGestureListener(new RecordedButton.OnGestureListener() {
@@ -251,7 +248,6 @@ public class MainActivity extends BaseActivity implements MediaRecorderBase.OnEn
             textView.setText("视频编译中 "+progress+"%");
         }
     }
-
 
     /**
      * 视频编辑完成

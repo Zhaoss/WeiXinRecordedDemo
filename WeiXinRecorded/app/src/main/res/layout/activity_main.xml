@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <SurfaceView
+    <com.example.zhaoshuang.weixinrecordeddemo.FocusSurfaceView
         android:id="@+id/sv_ffmpeg"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
