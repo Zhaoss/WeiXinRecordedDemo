@@ -9,12 +9,14 @@
     <com.example.zhaoshuang.weixinrecordeddemo.MyVideoView
         android:id="@+id/vv_play"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"/>
 
     <RelativeLayout
         android:id="@+id/rl_tuya"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true">
         <com.example.zhaoshuang.weixinrecordeddemo.TuyaView
             android:id="@+id/tv_video"
             android:layout_width="match_parent"
@@ -133,7 +135,7 @@
             android:background="#dd2B2B2B"
             android:layout_alignParentBottom="true">
             <RelativeLayout
-                android:id="@+id/rv_pen"
+                android:id="@+id/rl_pen"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="50dp">
@@ -145,7 +147,7 @@
                     android:src="@mipmap/pen" />
             </RelativeLayout>
             <RelativeLayout
-                android:id="@+id/rv_icon"
+                android:id="@+id/rl_icon"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="50dp">
@@ -157,7 +159,7 @@
                     android:src="@mipmap/icon" />
             </RelativeLayout>
             <RelativeLayout
-                android:id="@+id/rv_text"
+                android:id="@+id/rl_text"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="50dp">
@@ -166,6 +168,29 @@
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
                     android:src="@mipmap/text_click" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rl_speed"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp">
+                <ImageView
+                    android:id="@+id/iv_speed"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/speed" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rl_cut"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/cut" />
             </RelativeLayout>
         </LinearLayout>
 
@@ -208,6 +233,51 @@
             android:background="#f4f4f4"
             android:layout_above="@id/v_line"
             android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/ll_progress"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="#dd2B2B2B"
+            android:layout_above="@id/v_line"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="#f4f4f4"
+                    android:text="调整视频播放速度为:"/>
+                <TextView
+                    android:id="@+id/tv_speed"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:textColor="#E8391A"
+                    android:text="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="#f4f4f4"
+                    android:text="倍"/>
+            </LinearLayout>
+            <SeekBar
+                android:id="@+id/sb_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="50dp"
+                android:layout_marginTop="10dp"/>
+        </LinearLayout>
+
     </RelativeLayout>
 
 </RelativeLayout>

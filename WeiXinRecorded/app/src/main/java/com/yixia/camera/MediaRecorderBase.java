@@ -108,7 +108,7 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 	/** 摄像头类型（前置/后置），默认后置 */
 	protected int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
 	/** 视频码率 */
-	protected int mVideoBitrate = 2048;
+	protected int mVideoBitrate = VIDEO_BITRATE_HIGH;
 	/** 状态标记 */
 	protected boolean mPrepared, mStartPreview, mSurfaceCreated;
 	/** 是否正在录制 */
@@ -398,8 +398,8 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 	/** 停止所有块的写入 */
 	private void stopAllRecord() {
 		mRecording = false;
-		if (mMediaObject != null && mMediaObject.getMedaParts() != null) {
-			for (MediaObject.MediaPart part : mMediaObject.getMedaParts()) {
+		if (mMediaObject != null && mMediaObject.getMediaParts() != null) {
+			for (MediaObject.MediaPart part : mMediaObject.getMediaParts()) {
 				if (part != null && part.recording) {
 					part.recording = false;
 					part.endTime = System.currentTimeMillis();

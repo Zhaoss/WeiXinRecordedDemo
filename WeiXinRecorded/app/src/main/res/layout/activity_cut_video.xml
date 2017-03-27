@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50dp">
+        <com.example.zhaoshuang.weixinrecordeddemo.MyVideoView
+            android:id="@+id/vv_play"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_margin="30dp" />
+        <com.example.zhaoshuang.weixinrecordeddemo.CutView
+            android:id="@+id/cv_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#dd2B2B2B"
+        android:layout_alignParentBottom="true">
+        <RelativeLayout
+            android:id="@+id/rl_close"
+            android:layout_width="50dp"
+            android:layout_height="50dp">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/video_close"/>
+            </RelativeLayout>
+        <TextView
+            android:id="@+id/tv_restore"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:text="还原"
+            android:textSize="16sp"
+            android:textColor="#21AE58"
+            android:layout_centerInParent="true"
+            android:gravity="center"/>
+        <RelativeLayout
+            android:id="@+id/rl_finish"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true">
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/cut_finish"/>
+        </RelativeLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

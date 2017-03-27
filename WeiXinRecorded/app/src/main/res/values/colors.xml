@@ -12,5 +12,6 @@
     <color name="color3">#FECD52</color>
     <color name="color4">#145CB9</color>
     <color name="color5">#21AE58</color>
+    <color name="video_gray">#aadddddd</color>
 
 </resources>

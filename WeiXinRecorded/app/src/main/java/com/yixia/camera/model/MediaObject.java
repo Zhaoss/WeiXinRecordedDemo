@@ -300,11 +300,12 @@ public class MediaObject implements Serializable {
 			for (MediaPart part : mMediaList) {
 				part.stop();
 			}
+			mMediaList.clear();
 		}
 		FileUtils.deleteDir(mOutputDirectory);
 	}
 
-	public LinkedList<MediaPart> getMedaParts() {
+	public LinkedList<MediaPart> getMediaParts() {
 		return mMediaList;
 	}
 

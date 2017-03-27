@@ -29,7 +29,6 @@ public class FocusSurfaceView extends SurfaceView {
     private String focusMode;
     private ImageView imageView;
     private MediaRecorderBase mediaRecorderBase;
-    private float dp50;
 
     public FocusSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -103,7 +102,7 @@ public class FocusSurfaceView extends SurfaceView {
                 downX = event.getX();
                 downY = event.getY();
                 //判断是否支持对焦模式
-                if(mediaRecorderBase != null && mediaRecorderBase.getCamera()!=null) {
+                if(mediaRecorderBase!=null && mediaRecorderBase.getCamera()!=null) {
                     List<String> focusModes = mediaRecorderBase.getCamera().getParameters().getSupportedFocusModes();
                     if (focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                         focusOnTouch((int) event.getRawX(), (int) event.getRawY(), mediaRecorderBase.getCamera());
