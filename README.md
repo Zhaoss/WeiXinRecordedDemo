@@ -20,6 +20,7 @@
 
 #如果想了解实现思路, 这里有详细源码分析讲解
 <a href="http://www.jianshu.com/p/5a173841a828" target="_blank">仿微信视频拍摄UI, 基于ffmpeg的视频录制编辑(上)</a>
+
 <a href="http://www.jianshu.com/p/df568b7141c5" target="_blank">仿微信视频拍摄UI, 基于ffmpeg的视频录制编辑(下)</a>
 
 #如果这篇文章对大家有所帮助, 希望可以点一下star哦, 我会经常在上面分享我工作中遇到的问题和酷炫的特效实现.
