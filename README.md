@@ -24,4 +24,12 @@
 
 <a href="http://www.jianshu.com/p/df568b7141c5" target="_blank">仿微信视频拍摄UI, 基于ffmpeg的视频录制编辑(下)</a>
 
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo1.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo4.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo5.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo6.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo3.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo7.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo8.png?raw=true)
+
 #如果这篇文章对大家有所帮助, 希望可以点一下star哦, 我会经常在上面分享我工作中遇到的问题和酷炫的特效实现.
