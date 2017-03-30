@@ -8,10 +8,6 @@ import com.yixia.camera.util.Log;
 import com.yixia.videoeditor.adapter.UtilityAdapter;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * 
@@ -31,15 +27,9 @@ public class VCamera {
 	private static String mVideoCachePath;
 	/** SDK版本号 */
 	public final static String VCAMERA_SDK_VERSION = "1.2.0";
-	/** FFMPEG执行失败存的log文件 */
-	public final static String FFMPEG_LOG_FILENAME = "ffmpeg.log";
-	/** 执行FFMPEG命令保存路径 */
-	public final static String FFMPEG_LOG_FILENAME_TEMP = "temp_ffmpeg.log";
 
 	/**
 	 * 初始化SDK
-	 * 
-	 * @param context
 	 */
 	public static void initialize(Context context) {
 		mPackageName = context.getPackageName();
@@ -75,11 +65,6 @@ public class VCamera {
 		return "";
 	}
 
-	// /** 上传错误日志 */
-	// public static void uploadErrorLog() {
-	// LogHelper.upload();
-	// }
-
 	/** 是否开启log输出 */
 	public static boolean isLog() {
 		return Log.getIsLog();
@@ -107,64 +92,5 @@ public class VCamera {
 		}
 
 		mVideoCachePath = path;
-
-		// 生成空的日志文件
-		File temp = new File(VCamera.getVideoCachePath(), VCamera.FFMPEG_LOG_FILENAME_TEMP);
-		if (!temp.exists()) {
-			try {
-				temp.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/** 拷贝转码失败的log */
-	protected static boolean copyFFmpegLog(String cmd) {
-		boolean result = false;
-
-		int size = 1 * 1024;
-
-		FileInputStream in = null;
-		FileOutputStream out = null;
-		try {
-			File temp = new File(VCamera.getVideoCachePath(), VCamera.FFMPEG_LOG_FILENAME_TEMP);
-			if (!temp.exists()) {
-				temp.createNewFile();
-				return false;
-			}
-			in = new FileInputStream(temp);
-			out = new FileOutputStream(new File(VCamera.getVideoCachePath(), VCamera.FFMPEG_LOG_FILENAME), true);
-			out.write("--------------------------------------------------\r\n".getBytes());
-			out.write(cmd.getBytes());
-			out.write("\r\n\r\n".getBytes());
-			byte[] buffer = new byte[size];
-			int bytesRead = -1;
-			while ((bytesRead = in.read(buffer)) != -1) {
-				out.write(buffer, 0, bytesRead);
-			}
-			out.flush();
-			result = true;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException e) {
-			}
-			try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException e) {
-			}
-		}
-		return result;
 	}
 }
