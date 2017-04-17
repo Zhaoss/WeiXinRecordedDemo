@@ -39,8 +39,10 @@ import java.util.List;
  */
 public abstract class MediaRecorderBase implements Callback, PreviewCallback, IMediaRecorder {
 
-	public static int VIDEO_WIDTH = 800;
-	public static int VIDEO_HEIGHT = 480;
+	/** 视频宽度 */
+	public static int VIDEO_WIDTH = 1280;
+	/** 视频高度 */
+	public static int VIDEO_HEIGHT = 720;
 
 	/** 未知错误 */
 	public static final int MEDIA_ERROR_UNKNOWN = 1;

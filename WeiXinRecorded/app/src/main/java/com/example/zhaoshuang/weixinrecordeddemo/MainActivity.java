@@ -262,6 +262,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mMediaObject.cleanTheme();
+        mMediaRecorder.release();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode == RESULT_OK){
             if(requestCode == REQUEST_KEY){
