@@ -46,6 +46,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     private int maxDuration = 8000;
     //本次段落是否录制完成
     private boolean isRecordedOver;
+    private ImageView iv_change_flash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         rl_bottom2 = (RelativeLayout) findViewById(R.id.rl_bottom2);
         ImageView iv_next = (ImageView) findViewById(R.id.iv_next);
         ImageView iv_close = (ImageView) findViewById(R.id.iv_close);
+        iv_change_flash = (ImageView) findViewById(R.id.iv_change_flash);
+        ImageView iv_change_camera = (ImageView) findViewById(R.id.iv_change_camera);
 
         initMediaRecorder();
 
@@ -100,6 +103,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         iv_finish.setOnClickListener(this);
         iv_next.setOnClickListener(this);
         iv_close.setOnClickListener(this);
+        iv_change_flash.setOnClickListener(this);
+        iv_change_camera.setOnClickListener(this);
     }
 
     private void changeButton(boolean flag){
@@ -250,6 +255,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     protected void onPause() {
         super.onPause();
         mMediaRecorder.stopPreview();
+        iv_change_flash.setImageResource(R.mipmap.video_flash_close);
     }
 
     @Override
@@ -305,6 +311,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 break;
             case R.id.iv_close:
                 initMediaRecorderState();
+                break;
+            case R.id.iv_change_camera:
+                mMediaRecorder.switchCamera();
+                iv_change_flash.setImageResource(R.mipmap.video_flash_close);
+                break;
+            case R.id.iv_change_flash:
+                if(mMediaRecorder.changeFlash(this)){
+                    iv_change_flash.setImageResource(R.mipmap.video_flash_open);
+                } else{
+                    iv_change_flash.setImageResource(R.mipmap.video_flash_close);
+                }
                 break;
         }
     }

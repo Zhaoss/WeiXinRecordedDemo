@@ -2,6 +2,8 @@ package com.yixia.camera;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
@@ -171,16 +173,33 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 		return false;
 	}
 
+	public boolean changeFlash(Context context) {
+		boolean flashOn = false;
+		if (flashEnable(context)) {
+			Camera.Parameters params = camera.getParameters();
+			if (Camera.Parameters.FLASH_MODE_TORCH.equals(params.getFlashMode())) {
+				params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+				flashOn = false;
+			} else {
+				params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+				flashOn = true;
+			}
+			camera.setParameters(params);
+		}
+		return flashOn;
+	}
+
+	public boolean flashEnable(Context context) {
+		return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
+				&& mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK;
+
+	}
+
 	/** 切换前置/后置摄像头 */
 	public void switchCamera(int cameraFacingFront) {
-		switch (cameraFacingFront) {
-		case Camera.CameraInfo.CAMERA_FACING_FRONT:
-		case Camera.CameraInfo.CAMERA_FACING_BACK:
-			mCameraId = cameraFacingFront;
-			stopPreview();
-			startPreview();
-			break;
-		}
+		mCameraId = cameraFacingFront;
+		stopPreview();
+		startPreview();
 	}
 
 	/** 切换前置/后置摄像头 */
@@ -463,7 +482,6 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 		if(flag){
 			mParameters.setPreviewSize(MediaRecorderBase.VIDEO_WIDTH, MediaRecorderBase.VIDEO_HEIGHT);
 		}else{
-			MediaRecorderBase.VIDEO_WIDTH = 1280;
 			MediaRecorderBase.VIDEO_WIDTH = 720;
 			mParameters.setPreviewSize(MediaRecorderBase.VIDEO_WIDTH, MediaRecorderBase.VIDEO_HEIGHT);
 		}
@@ -506,12 +524,14 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 
 		try {
 
-			if (mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK)
-				camera = Camera.open();
-			else
-				camera = Camera.open(mCameraId);
+			if (mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+				camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+				camera.setDisplayOrientation(90);
+			} else {
+				camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+				camera.setDisplayOrientation(270);
+			}
 
-			camera.setDisplayOrientation(90);
 			try {
 				camera.setPreviewDisplay(mSurfaceHolder);
 			} catch (IOException e) {

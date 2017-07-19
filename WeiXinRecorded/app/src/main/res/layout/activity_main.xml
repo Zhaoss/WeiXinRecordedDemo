@@ -78,5 +78,20 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="150dp"
         android:layout_alignParentBottom="true"/>
+    <ImageView
+        android:id="@+id/iv_change_flash"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="8dp"
+        android:layout_margin="7dp"
+        android:src="@mipmap/video_flash_close"/>
+    <ImageView
+        android:id="@+id/iv_change_camera"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="8dp"
+        android:layout_margin="7dp"
+        android:layout_alignParentRight="true"
+        android:src="@mipmap/video_camera"/>
 
 </RelativeLayout>
