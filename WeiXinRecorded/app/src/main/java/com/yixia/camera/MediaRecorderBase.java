@@ -159,6 +159,10 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 		return mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT;
 	}
 
+	public int getCameraType() {
+		return mCameraId;
+	}
+
 	/** 是否支持前置摄像头 */
 	@SuppressLint("NewApi")
 	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
@@ -529,7 +533,7 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 				camera.setDisplayOrientation(90);
 			} else {
 				camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
-				camera.setDisplayOrientation(270);
+				camera.setDisplayOrientation(90);
 			}
 
 			try {

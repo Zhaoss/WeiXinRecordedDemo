@@ -1,10 +1,13 @@
 package com.example.zhaoshuang.weixinrecordeddemo;
 
 import android.content.Intent;
+import android.hardware.Camera;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -17,7 +20,11 @@ import com.yixia.camera.VCamera;
 import com.yixia.camera.model.MediaObject;
 import com.yixia.videoeditor.adapter.UtilityAdapter;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * 仿新版微信录制视频
@@ -47,6 +54,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     //本次段落是否录制完成
     private boolean isRecordedOver;
     private ImageView iv_change_flash;
+    private List<Integer> cameraTypeList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,9 +88,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 mMediaRecorder.startRecord();
                 rb_start.setSplit();
                 myHandler.sendEmptyMessageDelayed(HANDLER_RECORD, 100);
+                cameraTypeList.add(mMediaRecorder.getCameraType());
             }
             @Override
             public void onClick() {
+
             }
             @Override
             public void onLift() {
@@ -186,12 +196,119 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
      */
     private void syntVideo(){
 
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected void onPreExecute() {
+                if(textView != null) textView.setText("视频合成中");
+            }
+            @Override
+            protected String doInBackground(Void... params) {
+
+                List<String> pathList = new ArrayList<>();
+                for (int x = 0; x < mMediaObject.getMediaParts().size(); x++) {
+                    MediaObject.MediaPart mediaPart = mMediaObject.getMediaParts().get(x);
+
+                    String mp4Path = MyApplication.VIDEO_PATH+"/"+x+".mp4";
+                    List<String> list = new ArrayList<>();
+                    list.add(mediaPart.mediaPath);
+                    tsToMp4(list, mp4Path);
+
+                    String rotateMp4;
+                    if(cameraTypeList.get(x) == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                        rotateMp4 = MyApplication.VIDEO_PATH+"/"+x+"_rotate.mp4";
+                        rotateVideo2(mp4Path, 180, rotateMp4);
+                    }else{
+                        rotateMp4 = mp4Path;
+                    }
+
+                    pathList.add(rotateMp4);
+                }
+
+                List<String> tsList = new ArrayList<>();
+                for (int x = 0; x < pathList.size(); x++) {
+                    String path = pathList.get(x);
+                    String ts = MyApplication.VIDEO_PATH+"/"+x+".ts";
+                    mp4ToTs(path, ts);
+                    tsList.add(ts);
+                }
+
+                String output = MyApplication.VIDEO_PATH+"/finish.mp4";
+                boolean flag = tsToMp4(tsList, output);
+                if(!flag) output = "";
+                deleteDirRoom(new File(MyApplication.VIDEO_PATH), output);
+                return output;
+            }
+            @Override
+            protected void onPostExecute(String result) {
+                closeProgressDialog();
+                if(!TextUtils.isEmpty(result)){
+                    rl_bottom2.setVisibility(View.VISIBLE);
+                    vv_play.setVisibility(View.VISIBLE);
+
+                    vv_play.setVideoPath(result);
+                    vv_play.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            vv_play.setLooping(true);
+                            vv_play.start();
+                        }
+                    });
+                    if(vv_play.isPrepared()){
+                        vv_play.setLooping(true);
+                        vv_play.start();
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(), "视频合成失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute();
+    }
+
+    /**
+     * 删除文件夹下所有文件, 只保留一个
+     * @param fileName 保留的文件名称
+     */
+    public static void deleteDirRoom(File dir, String fileName){
+
+        if(dir.exists() && dir.isDirectory()){
+            File[] files = dir.listFiles();
+            for(File f: files){
+                deleteDirRoom(f, fileName);
+            }
+        }else if(dir.exists()) {
+            if (!dir.getAbsolutePath().equals(fileName)){
+                dir.delete();
+            }
+        }
+    }
+
+    public void mp4ToTs(String path, String output){
+
+        //./ffmpeg -i 0.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts ts0.ts
+
+        StringBuilder sb = new StringBuilder("ffmpeg");
+        sb.append(" -i");
+        sb.append(" "+path);
+        sb.append(" -c");
+        sb.append(" copy");
+        sb.append(" -bsf:v");
+        sb.append(" h264_mp4toannexb");
+        sb.append(" -f");
+        sb.append(" mpegts");
+        sb.append(" "+output);
+
+        int i = UtilityAdapter.FFmpegRun("", sb.toString());
+    }
+
+    public boolean tsToMp4(List<String> path, String output){
+
         //ffmpeg -i "concat:ts0.ts|ts1.ts|ts2.ts|ts3.ts" -c copy -bsf:a aac_adtstoasc out2.mp4
+
         StringBuilder sb = new StringBuilder("ffmpeg");
         sb.append(" -i");
         String concat="concat:";
-        for (MediaObject.MediaPart part : mMediaObject.getMediaParts()){
-            concat+=part.mediaPath;
+        for (String part : path){
+            concat += part;
             concat += "|";
         }
         concat = concat.substring(0, concat.length()-1);
@@ -201,30 +318,51 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         sb.append(" -bsf:a");
         sb.append(" aac_adtstoasc");
         sb.append(" -y");
-        String output = MyApplication.VIDEO_PATH+"/finish.mp4";
         sb.append(" "+output);
 
         int i = UtilityAdapter.FFmpegRun("", sb.toString());
-        closeProgressDialog();
-        if(i == 0){
-            rl_bottom2.setVisibility(View.VISIBLE);
-            vv_play.setVisibility(View.VISIBLE);
+        return i == 0;
+    }
 
-            vv_play.setVideoPath(output);
-            vv_play.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    vv_play.setLooping(true);
-                    vv_play.start();
-                }
-            });
-            if(vv_play.isPrepared()){
-                vv_play.setLooping(true);
-                vv_play.start();
-            }
-        }else{
-            Toast.makeText(getApplicationContext(), "视频合成失败", Toast.LENGTH_SHORT).show();
-        }
+    public boolean rotateVideo(String path, int angle, String output){
+
+        //ffmpeg -i input.mp4 -c copy -metadata:s:v:0 rotate=90 output.mp4
+
+        StringBuilder sb = new StringBuilder("ffmpeg");
+        sb.append(" -i");
+        sb.append(" "+path);
+        sb.append(" -c");
+        sb.append(" copy");
+        sb.append(" -metadata:s:v");
+        sb.append(" rotate="+angle);
+        sb.append(" "+output);
+
+        int i = UtilityAdapter.FFmpegRun("", sb.toString());
+
+        return i == 0;
+    }
+
+    public boolean rotateVideo2(String path, float angle, String output){
+
+        ////ffmpeg -i INPUT -vf "rotate=45*(PI/180),format=yuv420p" -metadata:s:v rotate=0 -codec:v libx264 -codec:a copy output.mp4
+
+        StringBuilder sb = new StringBuilder("ffmpeg");
+        sb.append(" -i");
+        sb.append(" "+path);
+        String filter=String.format(Locale.getDefault(),"rotate=%f*(PI/180),format=yuv420p",angle);
+        sb.append(" -vf");
+        sb.append(" "+filter);
+        sb.append(" -metadata:s:v");
+        sb.append(" rotate=0");
+        sb.append(" -codec:v");
+        sb.append(" h264");
+        sb.append(" -codec:a");
+        sb.append(" copy");
+        sb.append(" "+output);
+
+        int i = UtilityAdapter.FFmpegRun("", sb.toString());
+
+        return i == 0;
     }
 
     /**
@@ -293,6 +431,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                     mMediaObject.removePart(lastPart, true);
                     rb_start.setProgress(mMediaObject.getDuration());
                     rb_start.deleteSplit();
+                    if(cameraTypeList.size() > 0) {
+                        cameraTypeList.remove(cameraTypeList.size() - 1);
+                    }
                     changeButton(mMediaObject.getMediaParts().size() > 0);
                     iv_back.setImageResource(R.mipmap.video_delete);
                 }else if(mMediaObject.getMediaParts().size() > 0){

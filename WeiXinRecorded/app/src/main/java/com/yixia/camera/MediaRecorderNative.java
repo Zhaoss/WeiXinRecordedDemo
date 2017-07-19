@@ -32,8 +32,6 @@ public class MediaRecorderNative extends MediaRecorderBase implements MediaRecor
 			mRecording = true;
 			result = mMediaObject.buildMediaPart(mCameraId, VIDEO_SUFFIX);
 			String cmd = String.format("filename = \"%s\"; ", result.mediaPath);
-			//如果需要定制非480x480的视频，可以启用以下代码，其他vf参数参考ffmpeg的文档：
-			//cmd += String.format("addcmd = %s; "," -vf \"transpose=1,crop="+UtilityAdapter.VIDEO_WIDTH+":"+UtilityAdapter.VIDEO_HEIGHT+":0:240\" ");
 			cmd += String.format("addcmd = %s; "," -vf \"transpose=1\" ");
 			UtilityAdapter.FilterParserAction(cmd, UtilityAdapter.PARSERACTION_START);
 			if (mAudioRecorder == null && result != null) {
@@ -55,7 +53,6 @@ public class MediaRecorderNative extends MediaRecorderBase implements MediaRecor
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
 		if (mRecording) {
-			//底层实时处理视频，将视频旋转好，并剪切成480x480
 			UtilityAdapter.RenderDataYuv(data);
 		}
 		super.onPreviewFrame(data, camera);

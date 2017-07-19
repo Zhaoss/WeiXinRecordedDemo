@@ -61,13 +61,6 @@
             android:background="@drawable/rotia"
             android:src="@mipmap/video_next"/>
     </RelativeLayout>
-    <com.example.zhaoshuang.weixinrecordeddemo.RecordedButton
-        android:id="@+id/rb_start"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"/>
     <TextView
         android:id="@+id/tv_hint"
         android:layout_width="wrap_content"
@@ -93,5 +86,12 @@
         android:layout_margin="7dp"
         android:layout_alignParentRight="true"
         android:src="@mipmap/video_camera"/>
+    <com.example.zhaoshuang.weixinrecordeddemo.RecordedButton
+        android:id="@+id/rb_start"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"/>
 
 </RelativeLayout>
