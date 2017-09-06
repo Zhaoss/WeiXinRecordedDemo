@@ -17,6 +17,7 @@ public class MediaRecorderNative extends MediaRecorderBase implements MediaRecor
 
 	/** 视频后缀 */
 	private static final String VIDEO_SUFFIX = ".ts";
+	private int cameraState = 1;
 
 	/** 开始录制 */
 	@Override
@@ -32,7 +33,7 @@ public class MediaRecorderNative extends MediaRecorderBase implements MediaRecor
 			mRecording = true;
 			result = mMediaObject.buildMediaPart(mCameraId, VIDEO_SUFFIX);
 			String cmd = String.format("filename = \"%s\"; ", result.mediaPath);
-			cmd += String.format("addcmd = %s; "," -vf \"transpose=1\" ");
+			cmd += String.format("addcmd = %s; ", " -vf \"transpose="+cameraState+"\" ");
 			UtilityAdapter.FilterParserAction(cmd, UtilityAdapter.PARSERACTION_START);
 			if (mAudioRecorder == null && result != null) {
 				mAudioRecorder = new AudioRecorder(this);
@@ -40,6 +41,17 @@ public class MediaRecorderNative extends MediaRecorderBase implements MediaRecor
 			}
 		}
 		return result;
+	}
+
+	/** 切换前置/后置摄像头 */
+	public void switchCamera() {
+		if (mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+			switchCamera(Camera.CameraInfo.CAMERA_FACING_FRONT);
+			cameraState = 2;
+		} else {
+			switchCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
+			cameraState = 1;
+		}
 	}
 
 	/** 停止录制 */

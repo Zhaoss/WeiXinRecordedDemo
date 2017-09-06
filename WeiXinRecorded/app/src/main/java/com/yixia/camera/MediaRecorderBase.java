@@ -206,15 +206,6 @@ public abstract class MediaRecorderBase implements Callback, PreviewCallback, IM
 		startPreview();
 	}
 
-	/** 切换前置/后置摄像头 */
-	public void switchCamera() {
-		if (mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
-			switchCamera(Camera.CameraInfo.CAMERA_FACING_FRONT);
-		} else {
-			switchCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
-		}
-	}
-
 	/**
 	 * 自动对焦
 	 *

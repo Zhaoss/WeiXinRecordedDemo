@@ -1,7 +1,6 @@
 package com.example.zhaoshuang.weixinrecordeddemo;
 
 import android.content.Intent;
-import android.hardware.Camera;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -213,15 +212,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                     list.add(mediaPart.mediaPath);
                     tsToMp4(list, mp4Path);
 
-                    String rotateMp4;
+                    /*String rotateMp4;
                     if(cameraTypeList.get(x) == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                         rotateMp4 = MyApplication.VIDEO_PATH+"/"+x+"_rotate.mp4";
                         rotateVideo2(mp4Path, 180, rotateMp4);
                     }else{
                         rotateMp4 = mp4Path;
-                    }
+                    }*/
 
-                    pathList.add(rotateMp4);
+                    pathList.add(mp4Path);
                 }
 
                 List<String> tsList = new ArrayList<>();
