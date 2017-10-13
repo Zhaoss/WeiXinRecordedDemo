@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * 仿新版微信录制视频
@@ -211,15 +210,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                     List<String> list = new ArrayList<>();
                     list.add(mediaPart.mediaPath);
                     tsToMp4(list, mp4Path);
-
-                    /*String rotateMp4;
-                    if(cameraTypeList.get(x) == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                        rotateMp4 = MyApplication.VIDEO_PATH+"/"+x+"_rotate.mp4";
-                        rotateVideo2(mp4Path, 180, rotateMp4);
-                    }else{
-                        rotateMp4 = mp4Path;
-                    }*/
-
                     pathList.add(mp4Path);
                 }
 
@@ -320,47 +310,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         sb.append(" "+output);
 
         int i = UtilityAdapter.FFmpegRun("", sb.toString());
-        return i == 0;
-    }
-
-    public boolean rotateVideo(String path, int angle, String output){
-
-        //ffmpeg -i input.mp4 -c copy -metadata:s:v:0 rotate=90 output.mp4
-
-        StringBuilder sb = new StringBuilder("ffmpeg");
-        sb.append(" -i");
-        sb.append(" "+path);
-        sb.append(" -c");
-        sb.append(" copy");
-        sb.append(" -metadata:s:v");
-        sb.append(" rotate="+angle);
-        sb.append(" "+output);
-
-        int i = UtilityAdapter.FFmpegRun("", sb.toString());
-
-        return i == 0;
-    }
-
-    public boolean rotateVideo2(String path, float angle, String output){
-
-        ////ffmpeg -i INPUT -vf "rotate=45*(PI/180),format=yuv420p" -metadata:s:v rotate=0 -codec:v libx264 -codec:a copy output.mp4
-
-        StringBuilder sb = new StringBuilder("ffmpeg");
-        sb.append(" -i");
-        sb.append(" "+path);
-        String filter=String.format(Locale.getDefault(),"rotate=%f*(PI/180),format=yuv420p",angle);
-        sb.append(" -vf");
-        sb.append(" "+filter);
-        sb.append(" -metadata:s:v");
-        sb.append(" rotate=0");
-        sb.append(" -codec:v");
-        sb.append(" h264");
-        sb.append(" -codec:a");
-        sb.append(" copy");
-        sb.append(" "+output);
-
-        int i = UtilityAdapter.FFmpegRun("", sb.toString());
-
         return i == 0;
     }
 

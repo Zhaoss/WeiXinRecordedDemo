@@ -21,7 +21,7 @@ import java.util.Locale;
  * Created by zhaoshuang on 17/3/21.
  */
 
-public class CutVideoActivity extends BaseActivity implements View.OnClickListener{
+public class CutSizeActivity extends BaseActivity implements View.OnClickListener{
 
     private MyVideoView vv_play;
     private String path;
@@ -29,14 +29,14 @@ public class CutVideoActivity extends BaseActivity implements View.OnClickListen
     private int windowWidth;
     private int windowHeight;
     private int dp50;
-    private int videoWidth = MediaRecorderBase.VIDEO_HEIGHT;
-    private int videoHeight = MediaRecorderBase.VIDEO_HEIGHT;
+    private int videoWidth;
+    private int videoHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_cut_video);
+        setContentView(R.layout.activity_cut_size);
 
         windowWidth = getWindowManager().getDefaultDisplay().getWidth();
         windowHeight = getWindowManager().getDefaultDisplay().getHeight();
@@ -56,11 +56,13 @@ public class CutVideoActivity extends BaseActivity implements View.OnClickListen
                 videoWidth = vv_play.getVideoWidth();
                 videoHeight = vv_play.getVideoHeight();
 
-                float widthF = vv_play.getVideoWidth()*1f/MediaRecorderBase.VIDEO_HEIGHT;
-                float heightF = vv_play.getVideoHeight()*1f/MediaRecorderBase.VIDEO_WIDTH;
+                float ra = videoWidth*1f/videoHeight;
+
+                float widthF = videoWidth*1f/MediaRecorderBase.VIDEO_HEIGHT;
+                float heightF = videoHeight*1f/MediaRecorderBase.VIDEO_WIDTH;
                 ViewGroup.LayoutParams layoutParams = vv_play.getLayoutParams();
-                layoutParams.width = (int) (windowWidth *widthF);
-                layoutParams.height = (int) (windowHeight *heightF);
+                layoutParams.width = (int) (windowWidth*widthF);
+                layoutParams.height = (int) (layoutParams.width/ra);
                 vv_play.setLayoutParams(layoutParams);
             }
         });
@@ -78,12 +80,10 @@ public class CutVideoActivity extends BaseActivity implements View.OnClickListen
         vv_play = (MyVideoView) findViewById(R.id.vv_play);
         cv_video = (CutView) findViewById(R.id.cv_video);
         RelativeLayout rl_close = (RelativeLayout) findViewById(R.id.rl_close);
-        RelativeLayout rl_finish = (RelativeLayout) findViewById(R.id.rl_finish);
-        TextView tv_restore = (TextView) findViewById(R.id.tv_restore);
+        TextView rl_finish = (TextView) findViewById(R.id.rl_finish);
 
         rl_close.setOnClickListener(this);
         rl_finish.setOnClickListener(this);
-        tv_restore.setOnClickListener(this);
     }
 
     /**
@@ -185,9 +185,6 @@ public class CutVideoActivity extends BaseActivity implements View.OnClickListen
                         }
                     }
                 }.execute();
-                break;
-            case R.id.tv_restore:
-                cv_video.setMargin(vv_play.getLeft(), vv_play.getTop(), windowWidth-vv_play.getRight(), windowHeight-vv_play.getBottom()-dp50);
                 break;
         }
     }

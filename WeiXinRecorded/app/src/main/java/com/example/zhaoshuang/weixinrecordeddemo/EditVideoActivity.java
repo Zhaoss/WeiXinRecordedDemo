@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -116,13 +115,15 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
                 if(isPlaying){
                     videoWidth = vv_play.getVideoWidth();
                     videoHeight = vv_play.getVideoHeight();
+
+                    float ra = videoWidth*1f/videoHeight;
+
                     float widthF = videoWidth*1f/MediaRecorderBase.VIDEO_HEIGHT;
                     float heightF = videoHeight*1f/MediaRecorderBase.VIDEO_WIDTH;
                     ViewGroup.LayoutParams layoutParams = vv_play.getLayoutParams();
                     layoutParams.width = (int) (windowWidth*widthF);
-                    layoutParams.height = (int) (windowHeight*heightF);
+                    layoutParams.height = (int) (layoutParams.width/ra);
                     vv_play.setLayoutParams(layoutParams);
-                    vv_play.setLooping(true);
 
                     ViewGroup.LayoutParams layoutParams1 = rl_tuya.getLayoutParams();
                     layoutParams1.width = layoutParams.width;
@@ -173,7 +174,8 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
         ll_progress = (LinearLayout) findViewById(R.id.ll_progress);
         sb_speed = (SeekBar) findViewById(R.id.sb_speed);
         tv_speed = (TextView) findViewById(R.id.tv_speed);
-        RelativeLayout rl_cut = (RelativeLayout) findViewById(R.id.rl_cut);
+        RelativeLayout rl_cut_size = (RelativeLayout) findViewById(R.id.rl_cut_size);
+        RelativeLayout rl_cut_time = (RelativeLayout) findViewById(R.id.rl_cut_time);
 
         RelativeLayout rl_back =  (RelativeLayout) findViewById(R.id.rl_back);
 
@@ -188,7 +190,8 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
         tv_finish_video.setOnClickListener(this);
         rl_close.setOnClickListener(this);
         rl_speed.setOnClickListener(this);
-        rl_cut.setOnClickListener(this);
+        rl_cut_size.setOnClickListener(this);
+        rl_cut_time.setOnClickListener(this);
 
         initColors();
         initExpression();
@@ -513,7 +516,7 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
      */
     private void changeCutState(){
 
-        Intent intent = new Intent(this, CutVideoActivity.class);
+        Intent intent = new Intent(this, CutSizeActivity.class);
         intent.putExtra("path", path);
         startActivityForResult(intent, 1);
     }
@@ -629,8 +632,19 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(resultCode==RESULT_OK){
-            vv_play.setVideoPath(path);
+        if(resultCode!=RESULT_OK){
+            return ;
+        }
+
+        switch (requestCode){
+            case 1:
+                vv_play.setVideoPath(path);
+                vv_play.start();
+                break;
+            case 2:
+                vv_play.setVideoPath(path);
+                vv_play.start();
+                break;
         }
     }
 
@@ -709,8 +723,13 @@ public class EditVideoActivity extends BaseActivity implements View.OnClickListe
                 changeIconState(false);
                 changeSpeedState(!(ll_progress.getVisibility()==View.VISIBLE));
                 break;
-            case R.id.rl_cut:
+            case R.id.rl_cut_size:
                 changeCutState();
+                break;
+            case R.id.rl_cut_time:
+                Intent intent = new Intent(this, CutTimeActivity.class);
+                intent.putExtra("path", path);
+                startActivityForResult(intent, 2);
                 break;
         }
     }

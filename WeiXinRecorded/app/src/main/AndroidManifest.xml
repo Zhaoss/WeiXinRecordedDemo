@@ -27,7 +27,9 @@
 
         <activity android:name=".VideoPlayActivity" />
 
-        <activity android:name=".CutVideoActivity" />
+        <activity android:name=".CutSizeActivity" />
+
+        <activity android:name=".CutTimeActivity" />
 
     </application>
 

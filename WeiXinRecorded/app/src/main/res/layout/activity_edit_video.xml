@@ -182,7 +182,7 @@
                     android:src="@mipmap/speed" />
             </RelativeLayout>
             <RelativeLayout
-                android:id="@+id/rl_cut"
+                android:id="@+id/rl_cut_size"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="50dp">
@@ -190,7 +190,18 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/cut" />
+                    android:src="@mipmap/cut_size" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rl_cut_time"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/cut_time" />
             </RelativeLayout>
         </LinearLayout>
 
