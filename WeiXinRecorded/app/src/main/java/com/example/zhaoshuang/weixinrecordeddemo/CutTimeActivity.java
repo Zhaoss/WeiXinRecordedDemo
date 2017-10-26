@@ -127,20 +127,39 @@ public class CutTimeActivity extends BaseActivity{
             }
             @Override
             protected String doInBackground(Void... params) {
-                //ffmpeg -ss START -t DURATION -i INPUT -vcodec copy -acodec copy OUTPUT'
+
+                //ffmpeg -ss 00:00:15 -t 00:00:05 -i input.mp4 -vcodec copy -acodec copy output.mp4
                 String output = MyApplication.VIDEO_PATH+"/"+System.currentTimeMillis()+".mp4";
-                int duration = endTime-startTime;
-                String time = "00:00:"+startTime/1000;
-                String length = "00:00:"+duration/1000;
+
+                int startM = startTime/1000;
+                int endM = (endTime-startTime)/1000;
+
+                String startStr;
+                String endStr;
+
+                if(startM < 10){
+                    startStr = "00:00:0"+startM;
+                }else{
+                    startStr = "00:00:"+startM;
+                }
+
+                if(endM < 10){
+                    endStr = "00:00:0"+endM;
+                }else{
+                    endStr = "00:00:"+endM;
+                }
+
                 StringBuilder sb = new StringBuilder("ffmpeg");
-                sb.append(" -ss");
-                sb.append(" "+time);
-                sb.append(" -t");
-                sb.append(" "+length);
                 sb.append(" -i");
                 sb.append(" "+path);
-                sb.append(" -vcodec copy");
-                sb.append(" -acodec copy");
+                sb.append(" -vcodec");
+                sb.append(" copy");
+                sb.append(" -acodec");
+                sb.append(" copy");
+                sb.append(" -ss");
+                sb.append(" "+startStr);
+                sb.append(" -t");
+                sb.append(" "+endStr);
                 sb.append(" "+output);
                 int i = UtilityAdapter.FFmpegRun("", sb.toString());
                 if(i == 0){
@@ -202,10 +221,13 @@ public class CutTimeActivity extends BaseActivity{
         thumbnailView.setMinInterval(pxWidth);
     }
 
+    /**
+     * 初始化缩略图
+     */
     private void initThumbs(){
 
         final int frame = 15;
-        final int frameTime = videoDuration/frame;
+        final int frameTime = videoDuration/frame*1000;
 
         int thumbnailWidth =  ll_thumbnail.getWidth()/frame;
         for (int x=0; x<frame; x++){
@@ -228,6 +250,7 @@ public class CutTimeActivity extends BaseActivity{
                     msg.arg1 = x;
                     myHandler.sendMessage(msg);
                 }
+                mediaMetadata.release();
                 return true;
             }
             @Override
