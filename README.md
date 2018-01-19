@@ -43,7 +43,7 @@
 ## 本项目所使用的so库是VCamera，个人免费， 禁止商用，只用作demo演示
 
 # MIT License
-Copyright (c) 2017 赵爽
+Copyright (c) 2017 Zhaoss (838198688@qq.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
