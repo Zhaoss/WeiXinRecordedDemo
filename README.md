@@ -42,6 +42,9 @@
 
 ## 本项目所使用的so库是VCamera，个人免费， 禁止商用，只用作demo演示
 
+* * *   
+<br /> 
+
 # MIT License
 Copyright (c) 2017 Zhaoss (838198688@qq.com)
 
