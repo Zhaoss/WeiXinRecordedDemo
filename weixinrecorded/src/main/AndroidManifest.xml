@@ -1,0 +1,24 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zhaoshuang.weixinrecorded" >
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+
+        <activity android:name=".RecordedActivity" />
+
+        <activity android:name=".EditVideoActivity"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+
+        <activity android:name=".CutSizeActivity" />
+
+        <activity android:name=".CutTimeActivity" />
+
+    </application>
+
+</manifest>
