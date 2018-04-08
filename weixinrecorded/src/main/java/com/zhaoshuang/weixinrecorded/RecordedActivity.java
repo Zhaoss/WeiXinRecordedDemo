@@ -247,6 +247,7 @@ public class RecordedActivity extends BaseActivity {
         vv_play.pause();
         iv_photo.setVisibility(View.GONE);
 
+        rl_top.setVisibility(View.VISIBLE);
         rb_start.setVisibility(View.VISIBLE);
         rl_bottom2.setVisibility(View.GONE);
         changeButton(false);

@@ -54,7 +54,7 @@ public abstract class BaseActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             pb_loading.setIndeterminateTintList(ContextCompat.getColorStateList(this, R.color.dialog_pro_color));
         }
-        tv_hint.setText("正在操作中...");
+        tv_hint.setText("正在抓取屏幕, 请保持静止");
         progressDialog = builder.create();
         progressDialog.show();
     }
