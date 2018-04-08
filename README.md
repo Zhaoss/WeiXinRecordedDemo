@@ -1,3 +1,4 @@
+## v3.0 增加点击拍照功能, 优化项目结构
 ## v2.5 增加剪切时长功能, 优化交互
 ## v2.4 大幅优化, 使用前后摄像头拍摄视频时, 合成视频过慢的问题 (感谢@bertsir)
 ## v2.3 增加摄像头切换和闪光灯开启功能, 修复前置摄像头拍摄出来画面颠倒等bug
@@ -31,14 +32,15 @@
 
 <a href="http://www.jianshu.com/p/df568b7141c5" target="_blank">仿微信视频拍摄UI, 基于ffmpeg的视频录制编辑(下)</a>
 
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo10.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo1.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo4.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo5.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo6.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo3.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo7.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/%E8%BF%99%E6%98%AF%E7%AE%80%E4%B9%A6%E4%B8%8A%E7%AF%87%E7%9A%84%E6%BA%90%E7%A0%81,%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/Image/demo8.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo1.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo2.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo3.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo4.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo5.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo6.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo7.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo8.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo9.png?raw=true)
 
 ### 本项目所使用的so库是VCamera，个人免费， 禁止商用，只用作demo演示
 
