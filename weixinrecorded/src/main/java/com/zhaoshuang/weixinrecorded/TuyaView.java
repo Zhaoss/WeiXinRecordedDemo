@@ -48,6 +48,10 @@ import java.util.List;
         mPaint.setColor(color);
     }
 
+    public int getPathSum(){
+        return savePathList.size();
+    }
+
     public Paint newPaint(int color){
 
         Paint paint = new Paint();

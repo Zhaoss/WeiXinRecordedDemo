@@ -54,7 +54,7 @@ public class RecordedActivity extends BaseActivity {
     private RelativeLayout rl_bottom2;
     private ImageView iv_back;
     private TextView tv_hint;
-    private TextView textView;
+    private TextView dialogTextView;
     private MyVideoView vv_play;
     private ImageView iv_photo;
     private RelativeLayout rl_top;
@@ -128,9 +128,10 @@ public class RecordedActivity extends BaseActivity {
             public void onClick() {
                 if(!isVideoData) {
                     //点击拍照
-                    showProgressDialog2();
+                    dialogTextView = showProgressDialog();
+                    dialogTextView.setText("正在抓取屏幕, 请保持静止");
                     mMediaRecorder.startRecord();
-                    myHandler.sendEmptyMessageDelayed(HANDLER_CAMERA_PHOTO, 50);
+                    myHandler.sendEmptyMessageDelayed(HANDLER_CAMERA_PHOTO, 30);
                 }
             }
             @Override
@@ -269,7 +270,7 @@ public class RecordedActivity extends BaseActivity {
         changeButton(false);
         rb_start.setVisibility(View.GONE);
 
-        textView = showProgressDialog();
+        dialogTextView = showProgressDialog();
 
         myHandler.sendEmptyMessage(HANDLER_EDIT_VIDEO);
     }
@@ -293,7 +294,7 @@ public class RecordedActivity extends BaseActivity {
                 case HANDLER_EDIT_VIDEO: {
                         //合成视频的handler
                         int progress = UtilityAdapter.FilterParserAction("", UtilityAdapter.PARSERACTION_PROGRESS);
-                        if (textView != null) textView.setText("视频编译中 " + progress + "%");
+                        if (dialogTextView != null) dialogTextView.setText("视频编译中 " + progress + "%");
                         if (progress == 100) {
                             syntVideo();
                         } else if (progress == -1) {
@@ -306,7 +307,9 @@ public class RecordedActivity extends BaseActivity {
                     break;
                 case HANDLER_CAMERA_PHOTO: {
                         //拍照
-                        mMediaRecorder.stopRecord();
+                        if(mMediaRecorder.getRecordState()){
+                            mMediaRecorder.stopRecord();
+                        }
                         int progress = UtilityAdapter.FilterParserAction("", UtilityAdapter.PARSERACTION_PROGRESS);
                         if (progress == 100) {
                             syntCamera();
@@ -314,7 +317,8 @@ public class RecordedActivity extends BaseActivity {
                             closeProgressDialog();
                             Toast.makeText(getApplicationContext(), "照片拍摄失败", Toast.LENGTH_SHORT).show();
                         } else {
-                            sendEmptyMessageDelayed(HANDLER_CAMERA_PHOTO, 20);
+                            dialogTextView.setText("照片编辑中");
+                            sendEmptyMessageDelayed(HANDLER_CAMERA_PHOTO, 10);
                         }
                     }
                     break;
@@ -331,7 +335,7 @@ public class RecordedActivity extends BaseActivity {
         new AsyncTask<Void, Void, String>() {
             @Override
             protected void onPreExecute() {
-                if(textView != null) textView.setText("视频合成中");
+                if(dialogTextView != null) dialogTextView.setText("视频合成中");
             }
             @Override
             protected String doInBackground(Void... params) {

@@ -118,9 +118,9 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textColor="#fff"
-        android:text="拖到此处删除"
+        android:text="双指可缩放旋转, 拖到此处可删除表情"
         android:background="#dd2B2B2B"
         android:visibility="gone"
         android:layout_alignParentBottom="true"/>

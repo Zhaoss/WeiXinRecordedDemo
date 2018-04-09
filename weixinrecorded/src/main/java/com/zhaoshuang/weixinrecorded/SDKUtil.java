@@ -24,7 +24,7 @@ public class SDKUtil {
         VCamera.setVideoCachePath(VIDEO_PATH);
 
         // log输出,ffmpeg输出到logcat
-        VCamera.setDebugMode(false);
+        VCamera.setDebugMode(true);
 
         // 初始化拍摄SDK，必须
         VCamera.initialize(context);

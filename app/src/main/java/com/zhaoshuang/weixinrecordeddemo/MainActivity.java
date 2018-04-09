@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.yixia.camera.MediaRecorderBase;
 import com.zhaoshuang.weixinrecorded.MyVideoView;
@@ -19,9 +20,8 @@ import com.zhaoshuang.weixinrecorded.RecordedActivity;
 public class MainActivity extends Activity {
 
     private MyVideoView vv_play;
-    private int windowWidth;
-    private int windowHeight;
     private ImageView iv_photo;
+    private RelativeLayout rl_show;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +31,7 @@ public class MainActivity extends Activity {
 
         vv_play = findViewById(R.id.vv_play);
         iv_photo = findViewById(R.id.iv_photo);
-
-        windowWidth = getWindowManager().getDefaultDisplay().getWidth();
-        windowHeight = getWindowManager().getDefaultDisplay().getHeight();
+        rl_show = findViewById(R.id.rl_show);
     }
 
     public void recordVideo(View view){
@@ -70,8 +68,8 @@ public class MainActivity extends Activity {
                         float widthF = vv_play.getVideoWidth() * 1f / MediaRecorderBase.VIDEO_HEIGHT;
                         float heightF = vv_play.getVideoHeight() * 1f / MediaRecorderBase.VIDEO_WIDTH;
                         ViewGroup.LayoutParams layoutParams = vv_play.getLayoutParams();
-                        layoutParams.width = (int) (windowWidth * widthF);
-                        layoutParams.height = (int) (windowHeight * heightF);
+                        layoutParams.width = (int) (rl_show.getWidth() * widthF);
+                        layoutParams.height = (int) (rl_show.getHeight() * heightF);
                         vv_play.setLayoutParams(layoutParams);
                     }
                 });

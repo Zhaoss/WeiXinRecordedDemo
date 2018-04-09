@@ -711,7 +711,11 @@ public class EditVideoActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         setResult(RESULT_OK);
-        super.onBackPressed();
+        if(rl_edit_text.getVisibility() == View.VISIBLE){
+            changeTextState(false);
+        }else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -745,8 +749,38 @@ public class EditVideoActivity extends BaseActivity {
         }
     }
 
+    private boolean isPen;
+    private boolean isImage;
+    private boolean isSpeed;
+
     @SuppressLint("StaticFieldLeak")
     private void finishVideo() {
+
+        if(tv_video.getPathSum() ==0){
+            isPen = false;
+        }else{
+            isPen = true;
+        }
+
+        if(rl_touch_view.getChildCount() == 0){
+            isImage = false;
+        }else{
+            isImage = true;
+        }
+
+        if(sb_speed.getProgress() == 100){
+            isSpeed = false;
+        }else{
+            isSpeed = true;
+        }
+
+        if(!isPen && !isImage && !isSpeed){
+            Intent intent = new Intent();
+            intent.putExtra("videoPath", path);
+            setResult(RESULT_OK, intent);
+            finish();
+            return ;
+        }
 
         new AsyncTask<Void, Void, String>() {
             @Override

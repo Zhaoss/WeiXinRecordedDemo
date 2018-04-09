@@ -43,22 +43,6 @@ public abstract class BaseActivity extends Activity {
         return tv_hint;
     }
 
-    public void showProgressDialog2() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        View view = View.inflate(this, R.layout.dialog_loading, null);
-        builder.setView(view);
-        ProgressBar pb_loading = (ProgressBar) view.findViewById(R.id.pb_loading);
-        TextView tv_hint = (TextView) view.findViewById(R.id.tv_hint);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            pb_loading.setIndeterminateTintList(ContextCompat.getColorStateList(this, R.color.dialog_pro_color));
-        }
-        tv_hint.setText("正在抓取屏幕, 请保持静止");
-        progressDialog = builder.create();
-        progressDialog.show();
-    }
-
     public void closeProgressDialog() {
         try {
             if (progressDialog != null) {

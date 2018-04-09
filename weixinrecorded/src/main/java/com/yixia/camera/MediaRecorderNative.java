@@ -43,6 +43,10 @@ public class MediaRecorderNative extends MediaRecorderBase implements MediaRecor
 		return result;
 	}
 
+	public boolean getRecordState(){
+		return mRecording;
+	}
+
 	/** 切换前置/后置摄像头 */
 	public void switchCamera() {
 		if (mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
