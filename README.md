@@ -1,8 +1,8 @@
-## v4.0 更新ffmpeg库文件,适配target26以上版本,使用Camera源+MediaCodec编码录制视频和音频,优化编码速度
-## v3.0 增加点击拍照功能, 优化项目结构
-## v2.5 增加剪切时长功能, 优化交互
-## v2.4 大幅优化, 使用前后摄像头拍摄视频时, 合成视频过慢的问题 (感谢@bertsir)
-## v2.3 增加摄像头切换和闪光灯开启功能, 修复前置摄像头拍摄出来画面颠倒等bug
+### v4.0 更新ffmpeg库文件,适配target26以上版本,使用Camera源+MediaCodec编码录制视频和音频,优化编码速度
+### v3.0 增加点击拍照功能, 优化项目结构
+### v2.5 增加剪切时长功能, 优化交互
+### v2.4 大幅优化, 使用前后摄像头拍摄视频时, 合成视频过慢的问题 (感谢@bertsir)
+### v2.3 增加摄像头切换和闪光灯开启功能, 修复前置摄像头拍摄出来画面颠倒等bug
 <br /> 
 
 ```
@@ -39,7 +39,6 @@
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo2.png?raw=true)
 
 ### <a href="https://github.com/LanSoSdk/LanSoEditor_common" target="_blank">本项目使用的ffmpeg库是LanSoEditor<a>
-
 * * *   
 <br /> 
 
