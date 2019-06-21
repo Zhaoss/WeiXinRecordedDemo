@@ -38,7 +38,7 @@
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo1.png?raw=true)
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo2.png?raw=true)
 
-### 本项目所使用的so库是VCamera，个人免费， 禁止商用，只用作demo演示
+### <a href="https://github.com/LanSoSdk/LanSoEditor_common" target="_blank">本项目使用的ffmpeg库是LanSoEditor<a>
 
 * * *   
 <br /> 
