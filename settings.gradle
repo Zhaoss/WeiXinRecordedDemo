@@ -1,1 +1,1 @@
-include ':app', ':weixinrecorded'
+include ':app', ':lansongsdk', ':weixinrecorded'

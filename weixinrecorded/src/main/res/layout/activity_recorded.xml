@@ -4,114 +4,74 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.zhaoshuang.weixinrecorded.FocusSurfaceView
-        android:id="@+id/sv_ffmpeg"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+        <SurfaceView
+            android:id="@+id/surfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+    <com.zhaoss.weixinrecorded.view.LineProgressView
+        android:id="@+id/lineProgressView"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="@dimen/basic_activity_margin"
+        android:layout_marginLeft="@dimen/basic_activity_margin2"
+        android:layout_marginRight="@dimen/basic_activity_margin2"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <com.zhaoshuang.weixinrecorded.MyVideoView
-            android:id="@+id/vv_play"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"/>
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/basic_activity_margin2"
+        android:paddingRight="@dimen/basic_activity_margin2"
+        android:layout_marginBottom="@dimen/basic_activity_margin2"
+        android:layout_alignParentBottom="true">
         <ImageView
-            android:id="@+id/iv_photo"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:visibility="gone"/>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_top"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <ImageView
-            android:id="@+id/iv_change_flash"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:padding="8dp"
-            android:layout_margin="7dp"
+            android:id="@+id/iv_flash_video"
+            android:layout_width="@dimen/title_bar_hei"
+            android:layout_height="@dimen/title_bar_hei"
+            android:padding="@dimen/basic_activity_margin2"
             android:src="@mipmap/video_flash_close"/>
         <ImageView
-            android:id="@+id/iv_change_camera"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:padding="8dp"
-            android:layout_margin="7dp"
+            android:id="@+id/iv_camera_mode"
+            android:layout_width="@dimen/title_bar_hei"
+            android:layout_height="@dimen/title_bar_hei"
             android:layout_alignParentRight="true"
+            android:padding="@dimen/basic_activity_margin2"
             android:src="@mipmap/video_camera"/>
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/rl_bottom"
+        android:id="@+id/rl_record_button"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:gravity="center_vertical"
-        android:visibility="gone"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="70dp">
+        <com.zhaoss.weixinrecorded.view.RecordView
+            android:id="@+id/recordView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true" />
         <ImageView
-            android:id="@+id/iv_back"
+            android:id="@+id/iv_delete"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginLeft="30dp"
+            android:visibility="invisible"
+            android:layout_toLeftOf="@id/recordView"
+            android:layout_marginRight="@dimen/basic_activity_margin"
+            android:layout_centerVertical="true"
             android:src="@mipmap/video_delete"/>
-        <ImageView
-            android:id="@+id/iv_finish"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginRight="30dp"
-            android:layout_alignParentRight="true"
-            android:src="@mipmap/video_finish"/>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_bottom2"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_alignParentBottom="true"
-        android:gravity="center_vertical"
-        android:visibility="gone"
-        android:layout_marginBottom="20dp">
-        <ImageView
-            android:id="@+id/iv_close"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:padding="15dp"
-            android:layout_marginLeft="30dp"
-            android:background="@drawable/rotia"
-            android:src="@mipmap/video_close"/>
         <ImageView
             android:id="@+id/iv_next"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:padding="15dp"
-            android:layout_marginRight="30dp"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/rotia"
+            android:layout_toRightOf="@id/recordView"
+            android:layout_marginLeft="@dimen/basic_activity_margin"
+            android:visibility="invisible"
+            android:layout_centerVertical="true"
             android:src="@mipmap/video_next"/>
     </RelativeLayout>
-
-    <TextView
-        android:id="@+id/tv_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="点击拍照, 长按录制"
-        android:textSize="18sp"
-        android:textColor="#fff"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="150dp"
-        android:layout_alignParentBottom="true"/>
-    <com.zhaoshuang.weixinrecorded.RecordedButton
-        android:id="@+id/rb_start"
-        android:layout_width="100dp"
-        android:layout_height="120dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:paddingBottom="20dp"/>
 
 </RelativeLayout>
