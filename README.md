@@ -37,13 +37,6 @@
 
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo1.png?raw=true)
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo2.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo3.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo4.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo5.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo6.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo7.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo8.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo9.png?raw=true)
 
 ### 本项目所使用的so库是VCamera，个人免费， 禁止商用，只用作demo演示
 
