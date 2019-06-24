@@ -74,4 +74,17 @@
             android:src="@mipmap/video_next"/>
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/tv_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:textSize="18sp"
+        android:padding="5dp"
+        android:text="长按录像 点击拍照"
+        android:background="@drawable/video_hint_circle"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/rl_record_button"/>
+
+
 </RelativeLayout>

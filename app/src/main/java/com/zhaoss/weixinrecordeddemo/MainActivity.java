@@ -2,6 +2,7 @@ package com.zhaoss.weixinrecordeddemo;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yanzhenjie.permission.AndPermission;
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv_path;
     private TextureView textureView;
     private MediaPlayer mMediaPlayer;
+    private ImageView iv_photo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         tv_path = findViewById(R.id.tv_path);
         textureView = findViewById(R.id.textureView);
+        iv_photo = findViewById(R.id.iv_photo);
     }
 
     public void startRecord(View v){
@@ -63,9 +67,20 @@ public class MainActivity extends AppCompatActivity {
 
         if(resultCode==RESULT_OK && data!=null){
             if(requestCode == 1){
-                String videoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
-                tv_path.setText("视频地址: "+videoPath);
-                playVideo(videoPath);
+                textureView.setVisibility(View.GONE);
+                iv_photo.setVisibility(View.GONE);
+                int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
+                if(dataType == RecordedActivity.RESULT_TYPE_VIDEO){
+                    String videoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                    tv_path.setText("视频地址: "+videoPath);
+                    textureView.setVisibility(View.VISIBLE);
+                    playVideo(videoPath);
+                }else if(dataType == RecordedActivity.RESULT_TYPE_PHOTO){
+                    String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                    tv_path.setText("图片地址: "+photoPath);
+                    iv_photo.setVisibility(View.VISIBLE);
+                    iv_photo.setImageBitmap(BitmapFactory.decodeFile(photoPath));
+                }
             }
         }
     }

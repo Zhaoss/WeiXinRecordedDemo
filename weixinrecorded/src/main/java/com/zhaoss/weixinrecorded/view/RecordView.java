@@ -3,7 +3,8 @@ package com.zhaoss.weixinrecorded.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.annotation.ColorInt;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -77,10 +78,14 @@ public class RecordView extends View {
         }
     }
 
-    private boolean isTouch = true;
-    public void setTouch(boolean isTouch){
-        this.isTouch = isTouch;
-    }
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if(mOnGestureListener != null) {
+                mOnGestureListener.onDown();
+            }
+        }
+    };
 
     private boolean isDown;
     private float downX;
@@ -88,20 +93,15 @@ public class RecordView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if(!isTouch){
-            return true;
-        }
-
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
                 ViewGroup parent = (ViewGroup) getParent();
                 parent.requestDisallowInterceptTouchEvent(true);
-
                 downX = event.getRawX();
                 downY = event.getRawY();
-                if(mOnGestureListener != null) {
-                    mOnGestureListener.onDown();
-                }
+
+                mHandler.sendEmptyMessageDelayed(0, 100);
+
                 isDown = true;
                 invalidate();
                 break;
@@ -113,13 +113,16 @@ public class RecordView extends View {
                 parent1.requestDisallowInterceptTouchEvent(false);
                 float upX = event.getRawX();
                 float upY = event.getRawY();
-                if (Math.abs(upX - downX) < slideDis && Math.abs(upY - downY) < slideDis) {
-                    if(mOnGestureListener != null) {
-                        mOnGestureListener.onClick();
+                if(mHandler.hasMessages(0)){
+                    if (Math.abs(upX - downX) < slideDis && Math.abs(upY - downY) < slideDis) {
+                        if(mOnGestureListener != null) {
+                            mOnGestureListener.onClick();
+                        }
                     }
-                }
-                if(mOnGestureListener != null) {
-                    mOnGestureListener.onUp();
+                }else{
+                    if(mOnGestureListener != null) {
+                        mOnGestureListener.onUp();
+                    }
                 }
                 initState();
                 break;
@@ -129,6 +132,7 @@ public class RecordView extends View {
 
     public void initState(){
         isDown = false;
+        mHandler.removeMessages(0);
         invalidate();
     }
 
@@ -140,11 +144,6 @@ public class RecordView extends View {
         void onDown();
         void onUp();
         void onClick();
-    }
-
-    public void setPaintColor(@ColorInt int downColor, @ColorInt int upColor){
-        this.downColor = downColor;
-        this.upColor = upColor;
     }
 
     boolean changeStrokeWidth;
