@@ -21,7 +21,7 @@ public class AudioRecordUtil {
     private int bufferSize; //缓存大小
     private volatile AtomicBoolean isRecording = new AtomicBoolean(false);
     private AudioRecord audioRecord;
-    private BufferedOutputStream out;
+    private BufferedOutputStream fileOut;
 
     private MediaCodec mediaCodec;
     private ByteBuffer[] inputBuffers;
@@ -33,6 +33,22 @@ public class AudioRecordUtil {
 
     public AudioRecordUtil(){
         bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        //麦克风 采样率 单声道 音频格式, 缓存大小
+        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+        try{
+            mediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC);
+            //初始化   此格式使用的音频编码技术、音频采样率、使用此格式的音频信道数（单声道为 1，立体声为 2）
+            MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, 44100, 1);
+            mediaFormat.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_AUDIO_AAC);
+            mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+            //比特率 声音中的比特率是指将模拟声音信号转换成数字声音信号后，单位时间内的二进制数据量，是间接衡量音频质量的一个指标
+            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 3000*1024);
+            mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 2048);
+            mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+            mediaCodec.start();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void startRecord(final String path){
@@ -40,28 +56,26 @@ public class AudioRecordUtil {
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
             public String doInBackground() throws Throwable {
-                out = new BufferedOutputStream(new FileOutputStream(path));
-                audioRecord = new AudioRecord(
-                        MediaRecorder.AudioSource.MIC,//麦克风
-                        sampleRateInHz,//采样率
-                        AudioFormat.CHANNEL_IN_MONO,//单声道
-                        AudioFormat.ENCODING_PCM_16BIT,//音频格式
-                        bufferSize);
-                initMediaCodec();
-
                 //等待音频初始化完毕.
                 while (audioRecord.getState() == AudioRecord.STATE_UNINITIALIZED) {
                     Thread.sleep(10);
                 }
-
                 isRecording.set(true);
+
+                fileOut = new BufferedOutputStream(new FileOutputStream(path));
+
+                inputBuffers = mediaCodec.getInputBuffers();
+                outputBuffers = mediaCodec.getOutputBuffers();
+                bufferInfo = new MediaCodec.BufferInfo();
+                outputStream = new ByteArrayOutputStream();
+
                 audioRecord.startRecording();
                 while (isRecording.get()) {
                     byte[] data = new byte[bufferSize];
                     int read = audioRecord.read(data, 0, bufferSize);
                     byte[] cordByte = encodeData(data);
                     if (AudioRecord.ERROR_INVALID_OPERATION != read) {
-                        out.write(cordByte);
+                        fileOut.write(cordByte);
                     }
                 }
                 return "";
@@ -90,44 +104,16 @@ public class AudioRecordUtil {
             audioRecord = null;
         }
 
-        if(out != null){
+        if(fileOut != null){
             try {
-                out.close();
-                out = null;
+                fileOut.close();
+                fileOut = null;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         closeMediaCodec();
-    }
-
-    //创建一个输入流用来输出转换的数据
-
-    private void initMediaCodec()throws IOException {
-
-        mediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC);
-
-        //初始化   此格式使用的音频编码技术、音频采样率、使用此格式的音频信道数（单声道为 1，立体声为 2）
-        MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, 44100, 1);
-
-        mediaFormat.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_AUDIO_AAC);
-        mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
-        //比特率 声音中的比特率是指将模拟声音信号转换成数字声音信号后，单位时间内的二进制数据量，是间接衡量音频质量的一个指标
-        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 3000*1024);
-
-        //传入的数据大小
-        mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 2048);
-        //设置相关参数
-        mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-        //开始
-        mediaCodec.start();
-
-        inputBuffers = mediaCodec.getInputBuffers();
-        outputBuffers = mediaCodec.getOutputBuffers();
-        bufferInfo = new MediaCodec.BufferInfo();
-
-        outputStream = new ByteArrayOutputStream();
     }
 
     /**
@@ -162,7 +148,6 @@ public class AudioRecordUtil {
             mediaCodec.queueInputBuffer(inputBufferIndex, 0, bytes.length, pts, 0);
             presentationTimeUs += 1;
         }
-
 
         int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
 
