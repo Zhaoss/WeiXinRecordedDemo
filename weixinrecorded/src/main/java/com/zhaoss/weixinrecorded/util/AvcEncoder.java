@@ -84,37 +84,44 @@ public class AvcEncoder {
                         input = yuv420sp;
                     }
                     if (input != null) {
+                        //得到编码器的输入和输出流, 输入流写入源数据 输出流读取编码后的数据
                         ByteBuffer[] inputBuffers = mediaCodec.getInputBuffers();
                         ByteBuffer[] outputBuffers = mediaCodec.getOutputBuffers();
+                        //得到要使用的缓存序列角标
                         int inputBufferIndex = mediaCodec.dequeueInputBuffer(-1);
                         if (inputBufferIndex >= 0) {
                             pts = computePresentationTime(generateIndex);
                             ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
                             inputBuffer.clear();
+                            //把要编码的数据添加进去
                             inputBuffer.put(input);
+                            //塞到编码序列中, 等待MediaCodec编码
                             mediaCodec.queueInputBuffer(inputBufferIndex, 0, input.length, pts, 0);
                             generateIndex += 1;
                         }
 
                         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+                        //读取MediaCodec编码后的数据
                         int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
                         while (outputBufferIndex >= 0) {
                             ByteBuffer outputBuffer = outputBuffers[outputBufferIndex];
                             byte[] outData = new byte[bufferInfo.size];
+                            //这步就是编码后的h264数据了
                             outputBuffer.get(outData);
-                            if(bufferInfo.flags == 2){
+                            if(bufferInfo.flags == MediaCodec.BUFFER_FLAG_CODEC_CONFIG){//视频信息
                                 configByte = new byte[bufferInfo.size];
                                 configByte = outData;
-                            }else if(bufferInfo.flags == 1){
+                            }else if(bufferInfo.flags == MediaCodec.BUFFER_FLAG_KEY_FRAME){//关键帧
                                 byte[] keyframe = new byte[bufferInfo.size + configByte.length];
                                 System.arraycopy(configByte, 0, keyframe, 0, configByte.length);
                                 System.arraycopy(outData, 0, keyframe, configByte.length, outData.length);
-
                                 outputStream.write(keyframe, 0, keyframe.length);
-                            }else{
+                            }else{//正常的媒体数据
                                 outputStream.write(outData, 0, outData.length);
                             }
+                            //数据写入本地成功 通知MediaCodec释放data
                             mediaCodec.releaseOutputBuffer(outputBufferIndex, false);
+                            //读取下一次编码数据
                             outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
                         }
                     } else {

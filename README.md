@@ -31,9 +31,8 @@
 
 # 如果想了解实现思路, 这里有详细源码分析讲解
 
-<a href="http://www.jianshu.com/p/5a173841a828" target="_blank">仿微信视频拍摄UI, 基于ffmpeg的视频录制编辑(上)</a>
-
-<a href="http://www.jianshu.com/p/df568b7141c5" target="_blank">仿微信视频拍摄UI, 基于ffmpeg的视频录制编辑(下)</a>
+[仿微信视频拍摄UI, 基于ffmpeg的视频录制编辑(上)](https://www.jianshu.com/p/5a173841a828)
+[仿微信视频拍摄UI, 基于ffmpeg的视频录制编辑(下)](https://www.jianshu.com/p/df568b7141c5)
 
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo1.png?raw=true)
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo2.png?raw=true)

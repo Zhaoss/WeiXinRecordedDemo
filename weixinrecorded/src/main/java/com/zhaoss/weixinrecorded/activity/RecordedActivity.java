@@ -190,13 +190,15 @@ public class RecordedActivity extends BaseActivity {
                 String photoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".jpeg";
                 FileOutputStream fos = new FileOutputStream(photoPath);
 
+                //把NV21数据输出成jpeg
                 YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21, mCameraHelp.getWidth(), mCameraHelp.getHeight(), null);
                 yuvimage.compressToJpeg(new Rect(0, 0, yuvimage.getWidth(), yuvimage.getHeight()), 100, fos);
                 fos.close();
-
+                //注意这里, 因为之前初始化camera就说过了, camera出来的画面是旋转的 所以我们这里也手动把图片旋转一下
                 Matrix matrix = new Matrix();
                 if(mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_FRONT){
                     matrix.setRotate(360-mCameraHelp.getDisplayOrientation());
+                    //如果是前置摄像头, 那么镜像一下
                     matrix.postScale(-1, 1);
                 }else{
                     matrix.setRotate(mCameraHelp.getDisplayOrientation());
