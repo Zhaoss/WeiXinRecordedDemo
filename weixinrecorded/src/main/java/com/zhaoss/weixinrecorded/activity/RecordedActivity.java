@@ -31,6 +31,8 @@ import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -266,25 +268,7 @@ public class RecordedActivity extends BaseActivity {
             public void onClick(View v) {
                 editorTextView = showProgressDialog();
                 executeCount = segmentList.size()+4;
-                RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
-                    @Override
-                    public String doInBackground(){
-                        return h264ToMp4();
-                    }
-                    @Override
-                    public void onFinish(String result) {
-                        closeProgressDialog();
-                        Intent intent = new Intent(mContext, EditVideoActivity.class);
-                        intent.putExtra(INTENT_PATH, result);
-                        startActivityForResult(intent, REQUEST_CODE_KEY);
-                    }
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        closeProgressDialog();
-                        Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                finishVideo();
             }
         });
 
@@ -313,23 +297,61 @@ public class RecordedActivity extends BaseActivity {
         });
     }
 
-    public String h264ToMp4(){
+    public void finishVideo(){
+        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
+            @Override
+            public String doInBackground()throws Exception{
+                //h264转ts
+                ArrayList<String> tsList = new ArrayList<>();
+                for (int x=0; x<segmentList.size(); x++){
+                    String tsPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".ts";
+                    mVideoEditor.h264ToTs(segmentList.get(x), tsPath);
+                    tsList.add(tsPath);
+                }
+                //合成音频
+                String aacPath = mVideoEditor.executePcmEncodeAac(syntPcm(), AudioRecordUtil.sampleRateInHz, AudioRecordUtil.channelCount);
+                //合成视频
+                String mp4Path = mVideoEditor.executeConvertTsToMp4(tsList.toArray(new String[]{}));
+                //旋转视频
+                mp4Path = mVideoEditor.executeSetVideoMetaAngle(mp4Path, mCameraHelp.getCameraDisplayOrientation(mContext, Camera.CameraInfo.CAMERA_FACING_BACK));
+                //音视频混合
+                mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, aacPath);
+                return mp4Path;
+            }
+            @Override
+            public void onFinish(String result) {
+                closeProgressDialog();
+                Intent intent = new Intent(mContext, EditVideoActivity.class);
+                intent.putExtra(INTENT_PATH, result);
+                startActivityForResult(intent, REQUEST_CODE_KEY);
+            }
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+                closeProgressDialog();
+                Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-        ArrayList<String> tsList = new ArrayList<>();
-        for (int x=0; x<segmentList.size(); x++){
-            String tsPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".ts";
-            mVideoEditor.h264ToTs(segmentList.get(x), tsPath);
-            tsList.add(tsPath);
+    private String syntPcm() throws Exception{
+
+        String pcmPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
+        File file = new File(pcmPath);
+        file.createNewFile();
+        FileOutputStream out = new FileOutputStream(file);
+        for (int x=0; x<aacList.size(); x++){
+            FileInputStream in = new FileInputStream(aacList.get(x));
+            byte[] buf = new byte[4096];
+            int len=0;
+            while ((len=in.read(buf))>0){
+                out.write(buf, 0, len);
+                out.flush();
+            }
+            in.close();
         }
-
-        String aacPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".aac";
-        mVideoEditor.concatAudio(aacList.toArray(new String[]{}), aacPath);
-
-        String mp4Path = mVideoEditor.executeConvertTsToMp4(tsList.toArray(new String[]{}));
-        mp4Path = mVideoEditor.executeSetVideoMetaAngle(mp4Path, mCameraHelp.getCameraDisplayOrientation(mContext, Camera.CameraInfo.CAMERA_FACING_BACK));
-        mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, aacPath);
-
-        return mp4Path;
+        out.close();
+        return pcmPath;
     }
 
     private void goneRecordLayout(){
@@ -344,13 +366,13 @@ public class RecordedActivity extends BaseActivity {
     private String videoPath;
     private void startRecord(){
 
+        audioRecordUtil = new AudioRecordUtil();
+        audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
+        audioRecordUtil.startRecord(audioPath, true);
+
         mAvcCodec = new AvcEncoder(mCameraHelp.getWidth(), mCameraHelp.getHeight(), mYUVQueue);
         videoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
         mAvcCodec.startEncoder(videoPath, mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT);
-
-        audioRecordUtil = new AudioRecordUtil();
-        audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".aac";
-        audioRecordUtil.startRecord(audioPath);
 
         videoDuration = 0;
         lineProgressView.setSplit();
@@ -378,6 +400,7 @@ public class RecordedActivity extends BaseActivity {
             }
             @Override
             public void onFinish() {
+
                 segmentList.add(videoPath);
                 aacList.add(audioPath);
                 timeList.add(videoDuration);

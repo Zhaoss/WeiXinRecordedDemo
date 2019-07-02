@@ -3,7 +3,6 @@ package com.zhaoss.weixinrecorded.util;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaCodec;
-import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
 
@@ -12,11 +11,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AudioRecordUtil {
 
-    private static int sampleRateInHz = 44100;
+    public static int sampleRateInHz = 44100;
+    public static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
+    public static int channelCount = 1;
 
     private int bufferSize; //缓存大小
     private volatile AtomicBoolean isRecording = new AtomicBoolean(false);
@@ -24,26 +26,24 @@ public class AudioRecordUtil {
     private BufferedOutputStream fileOut;
 
     private MediaCodec mediaCodec;
-    private ByteBuffer[] inputBuffers;
-    private ByteBuffer[] outputBuffers;
     private MediaCodec.BufferInfo bufferInfo;
-    //pts时间基数
-    private long presentationTimeUs = 0;
-    private ByteArrayOutputStream outputStream;
+    private ArrayBlockingQueue<byte[]> mYUVQueue = new ArrayBlockingQueue<>(10);
 
     public AudioRecordUtil(){
-        bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT);
         //麦克风 采样率 单声道 音频格式, 缓存大小
-        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+    }
+
+    private void initMediaCodec(){
+
         try{
             mediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC);
             //初始化   此格式使用的音频编码技术、音频采样率、使用此格式的音频信道数（单声道为 1，立体声为 2）
-            MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, 44100, 1);
-            mediaFormat.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_AUDIO_AAC);
-            mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+            MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRateInHz, channelCount);
             //比特率 声音中的比特率是指将模拟声音信号转换成数字声音信号后，单位时间内的二进制数据量，是间接衡量音频质量的一个指标
-            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 3000*1024);
-            mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 2048);
+            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 30*1024);
+            mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, bufferSize);
             mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             mediaCodec.start();
         }catch (Exception e){
@@ -51,7 +51,9 @@ public class AudioRecordUtil {
         }
     }
 
-    public void startRecord(final String path){
+    public void startRecord(final String path, final boolean isPcmData){
+
+        isRecording.set(true);
 
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
@@ -60,22 +62,44 @@ public class AudioRecordUtil {
                 while (audioRecord.getState() == AudioRecord.STATE_UNINITIALIZED) {
                     Thread.sleep(10);
                 }
-                isRecording.set(true);
 
-                fileOut = new BufferedOutputStream(new FileOutputStream(path));
-
-                inputBuffers = mediaCodec.getInputBuffers();
-                outputBuffers = mediaCodec.getOutputBuffers();
-                bufferInfo = new MediaCodec.BufferInfo();
-                outputStream = new ByteArrayOutputStream();
-
+                if(!isPcmData){
+                    initMediaCodec();
+                }
                 audioRecord.startRecording();
                 while (isRecording.get()) {
                     byte[] data = new byte[bufferSize];
                     int read = audioRecord.read(data, 0, bufferSize);
-                    byte[] cordByte = encodeData(data);
                     if (AudioRecord.ERROR_INVALID_OPERATION != read) {
-                        fileOut.write(cordByte);
+                        mYUVQueue.add(data);
+                    }
+                }
+                return "";
+            }
+            @Override
+            public void onFinish(String result) {
+            }
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+            }
+        });
+
+        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
+            @Override
+            public String doInBackground() throws Throwable {
+
+                fileOut = new BufferedOutputStream(new FileOutputStream(path));
+                bufferInfo = new MediaCodec.BufferInfo();
+
+                while (isRecording.get() || mYUVQueue.size()>0){
+                    byte[] data = mYUVQueue.poll();
+                    if(data != null){
+                        if(isPcmData){
+                            fileOut.write(data);
+                        }else{
+                            fileOut.write(encodeData(data));
+                        }
                     }
                 }
                 return "";
@@ -96,66 +120,29 @@ public class AudioRecordUtil {
         isRecording.set(false);
     }
 
-    private void release(){
-
-        if (audioRecord != null) {
-            audioRecord.stop();
-            audioRecord.release();
-            audioRecord = null;
-        }
-
-        if(fileOut != null){
-            try {
-                fileOut.close();
-                fileOut = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        closeMediaCodec();
-    }
-
-    /**
-     * 关闭释放资源
-     **/
-    public void closeMediaCodec() {
-        try {
-            mediaCodec.stop();
-            mediaCodec.release();
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * 开始编码
      **/
-    public byte[] encodeData(byte[] bytes) throws Exception {
+    private byte[] encodeData(byte[] bytes) throws Exception {
 
         //其中需要注意的有dequeueInputBuffer（-1），参数表示需要得到的毫秒数，-1表示一直等，0表示不需要等，传0的话程序不会等待，但是有可能会丢帧。
         int inputBufferIndex = mediaCodec.dequeueInputBuffer(-1);
         if (inputBufferIndex >= 0) {
-            ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
+            ByteBuffer inputBuffer = mediaCodec.getInputBuffer(inputBufferIndex);
             inputBuffer.clear();
-            inputBuffer.put(bytes);
             inputBuffer.limit(bytes.length);
-
-            //计算pts
-            long pts = computePresentationTime(presentationTimeUs);
-
-            mediaCodec.queueInputBuffer(inputBufferIndex, 0, bytes.length, pts, 0);
-            presentationTimeUs += 1;
+            inputBuffer.put(bytes);
+            mediaCodec.queueInputBuffer(inputBufferIndex, 0, bytes.length, 0, 0);
         }
 
-        int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
+        int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10000);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         while (outputBufferIndex >= 0) {
             int outBitsSize = bufferInfo.size;
             int outPacketSize = outBitsSize + 7; // 7 is ADTS size
-            ByteBuffer outputBuffer = outputBuffers[outputBufferIndex];
-
+            ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferIndex);
             outputBuffer.position(bufferInfo.offset);
             outputBuffer.limit(bufferInfo.offset + outBitsSize);
 
@@ -170,12 +157,11 @@ public class AudioRecordUtil {
             outputStream.write(outData);
 
             mediaCodec.releaseOutputBuffer(outputBufferIndex, false);
-            outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
+            outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10000);
         }
 
         byte[] out = outputStream.toByteArray();
-        outputStream.flush();
-        outputStream.reset();
+        outputStream.close();
 
         return out;
     }
@@ -199,8 +185,31 @@ public class AudioRecordUtil {
         packet[6] = (byte) 0xFC;
     }
 
-    //计算PTS，实际上这个pts对应音频来说作用并不大，设置成0也是没有问题的
-    private long computePresentationTime(long frameIndex) {
-        return frameIndex * 90000 * 1024 / 44100;
+    private void release(){
+
+        if (audioRecord != null) {
+            audioRecord.stop();
+            audioRecord.release();
+            audioRecord = null;
+        }
+
+        if(mediaCodec != null){
+            try {
+                mediaCodec.stop();
+                mediaCodec.release();
+                mediaCodec = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(fileOut != null){
+            try {
+                fileOut.close();
+                fileOut = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -18,13 +18,13 @@ public class AvcEncoder {
     private int height;
     private int frameRate;
     private byte[] configByte;
-    private ArrayBlockingQueue<byte[]> YUVQueue;
+    private ArrayBlockingQueue<byte[]> mYUVQueue;
     private MediaCodec mediaCodec;
     private BufferedOutputStream outputStream;
     private AtomicBoolean isRunning = new AtomicBoolean(false);
 
     public AvcEncoder(int width, int height, ArrayBlockingQueue<byte[]> YUVQueue) {
-        this.YUVQueue = YUVQueue;
+        this.mYUVQueue = YUVQueue;
         this.width = width;
         this.height = height;
         frameRate = 24;
@@ -72,8 +72,8 @@ public class AvcEncoder {
                 long generateIndex = 0;
 
                 while (isRunning.get()) {
-                    if (YUVQueue.size() >0){
-                        input = YUVQueue.poll();
+                    if (mYUVQueue.size() >0){
+                        input = mYUVQueue.poll();
                         byte[] yuv420sp = new byte[width * height *3/2];
                         NV21ToNV12(input,yuv420sp, width, height);
 
