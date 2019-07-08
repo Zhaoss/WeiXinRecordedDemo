@@ -24,10 +24,10 @@ import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.AudioRecordUtil;
-import com.zhaoss.weixinrecorded.util.AvcEncoder;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
 import com.zhaoss.weixinrecorded.util.RxJavaUtil;
+import com.zhaoss.weixinrecorded.util.VideoEncoder;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
 
@@ -77,7 +77,7 @@ public class RecordedActivity extends BaseActivity {
     private AudioRecordUtil audioRecordUtil;
     private ArrayBlockingQueue<byte[]> mYUVQueue = new ArrayBlockingQueue<>(10);
     private SurfaceHolder mSurfaceHolder;
-    private AvcEncoder mAvcCodec;
+    private VideoEncoder mAvcCodec;
     private MyVideoEditor mVideoEditor = new MyVideoEditor();
 
     private int executeCount;//总编译次数
@@ -370,7 +370,7 @@ public class RecordedActivity extends BaseActivity {
         audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
         audioRecordUtil.startRecord(audioPath, true);
 
-        mAvcCodec = new AvcEncoder(mCameraHelp.getWidth(), mCameraHelp.getHeight(), mYUVQueue);
+        mAvcCodec = new VideoEncoder(mCameraHelp.getWidth(), mCameraHelp.getHeight(), mYUVQueue);
         videoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
         mAvcCodec.startEncoder(videoPath, mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT);
 

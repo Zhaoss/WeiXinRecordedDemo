@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AudioRecordUtil {
 
+    public static int TIMEOUT_USEC = 10000;
     public static int sampleRateInHz = 44100;
     public static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
     public static int channelCount = 1;
@@ -39,10 +40,8 @@ public class AudioRecordUtil {
 
         try{
             mediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC);
-            //初始化   此格式使用的音频编码技术、音频采样率、使用此格式的音频信道数（单声道为 1，立体声为 2）
             MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRateInHz, channelCount);
-            //比特率 声音中的比特率是指将模拟声音信号转换成数字声音信号后，单位时间内的二进制数据量，是间接衡量音频质量的一个指标
-            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 30*1024);
+            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, sampleRateInHz*2);
             mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, bufferSize);
             mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             mediaCodec.start();
@@ -135,7 +134,7 @@ public class AudioRecordUtil {
             mediaCodec.queueInputBuffer(inputBufferIndex, 0, bytes.length, 0, 0);
         }
 
-        int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10000);
+        int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -157,7 +156,7 @@ public class AudioRecordUtil {
             outputStream.write(outData);
 
             mediaCodec.releaseOutputBuffer(outputBufferIndex, false);
-            outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10000);
+            outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
         }
 
         byte[] out = outputStream.toByteArray();
