@@ -23,11 +23,10 @@ import com.lansosdk.videoeditor.LanSongFileUtil;
 import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.zhaoss.weixinrecorded.R;
-import com.zhaoss.weixinrecorded.util.AudioRecordUtil;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
+import com.zhaoss.weixinrecorded.util.RecordUtil;
 import com.zhaoss.weixinrecorded.util.RxJavaUtil;
-import com.zhaoss.weixinrecorded.util.VideoEncoder;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
 
@@ -64,6 +63,7 @@ public class RecordedActivity extends BaseActivity {
     private LineProgressView lineProgressView;
     private ImageView iv_flash_video;
     private TextView editorTextView;
+    private TextView tv_hint;
 
     private ArrayList<String> segmentList = new ArrayList<>();//分段视频地址
     private ArrayList<String> aacList = new ArrayList<>();//分段音频地址
@@ -74,16 +74,14 @@ public class RecordedActivity extends BaseActivity {
     //拍照
     private AtomicBoolean isShotPhoto = new AtomicBoolean(false);
     private CameraHelp mCameraHelp = new CameraHelp();
-    private AudioRecordUtil audioRecordUtil;
     private ArrayBlockingQueue<byte[]> mYUVQueue = new ArrayBlockingQueue<>(10);
     private SurfaceHolder mSurfaceHolder;
-    private VideoEncoder mAvcCodec;
     private MyVideoEditor mVideoEditor = new MyVideoEditor();
+    private RecordUtil recordUtil;
 
     private int executeCount;//总编译次数
     private float executeProgress;//编译进度
     private String audioPath;
-    private TextView tv_hint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -309,7 +307,7 @@ public class RecordedActivity extends BaseActivity {
                     tsList.add(tsPath);
                 }
                 //合成音频
-                String aacPath = mVideoEditor.executePcmEncodeAac(syntPcm(), AudioRecordUtil.sampleRateInHz, AudioRecordUtil.channelCount);
+                String aacPath = mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
                 //合成视频
                 String mp4Path = mVideoEditor.executeConvertTsToMp4(tsList.toArray(new String[]{}));
                 //旋转视频
@@ -366,13 +364,10 @@ public class RecordedActivity extends BaseActivity {
     private String videoPath;
     private void startRecord(){
 
-        audioRecordUtil = new AudioRecordUtil();
-        audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
-        audioRecordUtil.startRecord(audioPath, true);
-
-        mAvcCodec = new VideoEncoder(mCameraHelp.getWidth(), mCameraHelp.getHeight(), mYUVQueue);
         videoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
-        mAvcCodec.startEncoder(videoPath, mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT);
+        audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
+        recordUtil = new RecordUtil(videoPath, audioPath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), mYUVQueue);
+        recordUtil.start(mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT);
 
         videoDuration = 0;
         lineProgressView.setSplit();
@@ -380,7 +375,7 @@ public class RecordedActivity extends BaseActivity {
         RxJavaUtil.loop(20, new RxJavaUtil.OnRxLoopListener() {
             @Override
             public Boolean takeWhile(){
-                return mAvcCodec.isRunning();
+                return recordUtil.isRecording();
             }
             @Override
             public void onExecute() {
@@ -415,13 +410,8 @@ public class RecordedActivity extends BaseActivity {
     }
 
     private void upEvent(){
-        if(mAvcCodec != null) {
-            mAvcCodec.stopEncoder();
-            mAvcCodec = null;
-        }
-        if(audioRecordUtil != null) {
-            audioRecordUtil.stopRecord();
-            audioRecordUtil = null;
+        if(recordUtil != null) {
+            recordUtil.stop();
         }
         initRecorderState();
     }
@@ -496,11 +486,8 @@ public class RecordedActivity extends BaseActivity {
         if(mCameraHelp != null){
             mCameraHelp.release();
         }
-        if(mAvcCodec != null){
-            mAvcCodec.stopEncoder();
-        }
-        if(audioRecordUtil != null){
-            audioRecordUtil.stopRecord();
+        if(recordUtil != null) {
+            recordUtil.stop();
         }
     }
 

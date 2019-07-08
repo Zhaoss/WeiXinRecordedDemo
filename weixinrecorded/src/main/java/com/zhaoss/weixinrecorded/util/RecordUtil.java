@@ -5,52 +5,63 @@ import android.media.AudioRecord;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
-import android.media.MediaMuxer;
 import android.media.MediaRecorder;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RecordUtil {
 
-    public static int TIMEOUT_USEC = 12000;
-    public static int frameRate = 30;
-    public static int sampleRateInHz = 44100;
-    public static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
-    public static int channelCount = 1;
+    public final static int TIMEOUT_USEC = 10000;
+    public final static int frameRate = 25;
+    public final static int frameTime = 1000/frameRate;
+    public final static int sampleRateInHz = 44100;
+    public final static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
+    public final static int channelCount = 1;
 
-    private int bufferSize; //缓存大小
+    private int audioBufferSize; //缓存大小
 
-    private MediaCodec videoMediaCodec;
-    private MediaMuxer mediaMuxer;
     private ArrayBlockingQueue<byte[]> videoQueue;
-    private ArrayBlockingQueue<byte[]> audioQueue;
+    private ArrayBlockingQueue<byte[]> audioQueue = new ArrayBlockingQueue<>(10);
     private int width;
     private int height;
     private AtomicBoolean isRecording = new AtomicBoolean(false);
-    private int videoTrackIndex = -1;
-    private int audioTrackIndex = 1;
     private AudioRecord audioRecord;
-    private MediaCodec audioMediaCodec;
+    private MediaCodec videoMediaCodec;
+    private FileOutputStream videoOut;
+    private FileOutputStream audioOut;
+    private boolean isFrontCamera;
 
-    public RecordUtil(String videoPath, int width, int height, ArrayBlockingQueue<byte[]> videoQueue){
+    public RecordUtil(String videoPath, String audioPath, int width, int height, ArrayBlockingQueue<byte[]> videoQueue){
+
         this.videoQueue = videoQueue;
         this.width = width;
         this.height = height;
 
-        audioQueue = new ArrayBlockingQueue<>(10);
         try {
             initVideoMediaCodec();
-            initAudioMediaCodec();
-            initMediaMuxer(videoPath);
+            initAudioRecord();
+
+            File videoFile = new File(videoPath);
+            if(videoFile.exists()){
+                videoFile.delete();
+            }
+            videoFile.createNewFile();
+            videoOut = new FileOutputStream(videoFile);
+
+            File audioFile = new File(audioPath);
+            if(audioFile.exists()){
+                audioFile.delete();
+            }
+            audioFile.createNewFile();
+            audioOut = new FileOutputStream(audioFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private void initMediaMuxer(String videoPath)throws Exception{
-        mediaMuxer = new MediaMuxer(videoPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
     }
 
     private void initVideoMediaCodec()throws Exception{
@@ -64,23 +75,14 @@ public class RecordUtil {
         videoMediaCodec.start();
     }
 
-    private void initAudioMediaCodec()throws Exception{
-
-        bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT);
-        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-
-        MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRateInHz, channelCount);
-        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, sampleRateInHz*2);
-        mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, bufferSize);
-        mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
-        audioMediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC);
-        audioMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-        audioMediaCodec.start();
+    private void initAudioRecord(){
+        audioBufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT);
+        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT, audioBufferSize);
     }
 
-    public void start(){
+    public void start(boolean isFrontCamera){
+        this.isFrontCamera = isFrontCamera;
         isRecording.set(true);
-        audioRecord.startRecording();
         startRecordAudio();
         startWhile();
     }
@@ -89,11 +91,10 @@ public class RecordUtil {
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Boolean>() {
             @Override
             public Boolean doInBackground() throws Throwable {
-                //等待音频初始化完毕.
                 audioRecord.startRecording();
                 while (isRecording.get()) {
-                    byte[] data = new byte[bufferSize];
-                    if (audioRecord.read(data, 0, bufferSize) != AudioRecord.ERROR_INVALID_OPERATION) {
+                    byte[] data = new byte[audioBufferSize];
+                    if (audioRecord.read(data, 0, audioBufferSize) != AudioRecord.ERROR_INVALID_OPERATION) {
                         if(audioQueue.size() >= 10){
                             audioQueue.poll();
                         }
@@ -117,6 +118,7 @@ public class RecordUtil {
             @Override
             public Boolean doInBackground() throws Throwable {
 
+                startTime = System.currentTimeMillis();
                 while (isRecording.get() || videoQueue.size()>0 || audioQueue.size()>0) {
                     byte[] videoData = videoQueue.poll();
                     if(videoData != null){
@@ -124,7 +126,7 @@ public class RecordUtil {
                     }
                     byte[] audioData = audioQueue.poll();
                     if(audioData != null){
-                        //encodeAudio(audioData);
+                        audioOut.write(audioData);
                     }
                 }
                 return true;
@@ -141,38 +143,26 @@ public class RecordUtil {
         });
     }
 
-    private void encodeAudio(byte[] data){
-        int inputBufferIndex = audioMediaCodec.dequeueInputBuffer(-1);
-        if (inputBufferIndex >= 0) {
-            ByteBuffer inputBuffer = audioMediaCodec.getInputBuffer(inputBufferIndex);
-            inputBuffer.clear();
-            inputBuffer.put(data);
-            audioMediaCodec.queueInputBuffer(inputBufferIndex, 0, data.length, System.nanoTime()/1000, 0);
+    private long startTime = 0;
+    private int frameNum = 0;
+    private byte[] configByte;
+    private void encodeVideo(byte[] data)throws IOException {
 
-            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-            int outputBufferIndex = audioMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
-            if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED && audioTrackIndex==-1){
-                audioTrackIndex = mediaMuxer.addTrack(audioMediaCodec.getOutputFormat());
-                ready();
-            }
-            while (outputBufferIndex >= 0) {
-                ByteBuffer outputBuffer = audioMediaCodec.getOutputBuffer(outputBufferIndex);
-
-                if(audioTrackIndex >= 0) {
-                    mediaMuxer.writeSampleData(audioTrackIndex, outputBuffer, bufferInfo);
-                }
-
-                audioMediaCodec.releaseOutputBuffer(outputBufferIndex, false);
-                outputBufferIndex = audioMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
-            }
+        frameNum++;
+        int rightTime = frameNum*frameTime;
+        int runTime = (int) (System.currentTimeMillis()-startTime+frameTime);
+        if (runTime < rightTime) {
+            frameNum--;
+            return ;
         }
-    }
 
-    private void encodeVideo(byte[] data){
-
-        byte[] yuv420sp = new byte[width * height *3/2];
+        byte[] yuv420sp = new byte[width * height * 3 / 2];
         NV21ToNV12(data, yuv420sp, width, height);
+        if (isFrontCamera) {
+            yuv420sp = rotateYUV420Degree180(yuv420sp, width, height);
+        }
         data = yuv420sp;
+        //得到编码器的输入和输出流, 输入流写入源数据 输出流读取编码后的数据
         //得到要使用的缓存序列角标
         int inputBufferIndex = videoMediaCodec.dequeueInputBuffer(-1);
         if (inputBufferIndex >= 0) {
@@ -181,33 +171,33 @@ public class RecordUtil {
             //把要编码的数据添加进去
             inputBuffer.put(data);
             //塞到编码序列中, 等待MediaCodec编码
-            videoMediaCodec.queueInputBuffer(inputBufferIndex, 0, data.length, System.nanoTime()/1000, 0);
+            videoMediaCodec.queueInputBuffer(inputBufferIndex, 0, data.length,  System.nanoTime()/1000, 0);
         }
 
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         //读取MediaCodec编码后的数据
         int outputBufferIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
-        if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED && videoTrackIndex==-1){
-            videoTrackIndex = mediaMuxer.addTrack(videoMediaCodec.getOutputFormat());
-            ready();
-        }
         while (outputBufferIndex >= 0) {
             ByteBuffer outputBuffer = videoMediaCodec.getOutputBuffer(outputBufferIndex);
-
-            if(videoTrackIndex>=0 && audioTrackIndex>=0){
-                mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, bufferInfo);
+            byte[] outData = new byte[bufferInfo.size];
+            //这步就是编码后的h264数据了
+            outputBuffer.get(outData);
+            if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_CODEC_CONFIG) {//视频信息
+                configByte = new byte[bufferInfo.size];
+                configByte = outData;
+            } else if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_KEY_FRAME) {//关键帧
+                byte[] keyframe = new byte[bufferInfo.size + configByte.length];
+                System.arraycopy(configByte, 0, keyframe, 0, configByte.length);
+                System.arraycopy(outData, 0, keyframe, configByte.length, outData.length);
+                videoOut.write(keyframe, 0, keyframe.length);
+            } else {//正常的媒体数据
+                videoOut.write(outData, 0, outData.length);
             }
-
+            videoOut.flush();
             //数据写入本地成功 通知MediaCodec释放data
             videoMediaCodec.releaseOutputBuffer(outputBufferIndex, false);
             //读取下一次编码数据
             outputBufferIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
-        }
-    }
-
-    private void ready(){
-        if(videoTrackIndex>=0 && audioTrackIndex>=0){
-            mediaMuxer.start();
         }
     }
 
@@ -227,20 +217,8 @@ public class RecordUtil {
             e.printStackTrace();
         }
         try {
-            mediaMuxer.stop();
-            mediaMuxer.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
             videoMediaCodec.stop();
             videoMediaCodec.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            audioMediaCodec.stop();
-            audioMediaCodec.release();
         } catch (Exception e) {
             e.printStackTrace();
         }
