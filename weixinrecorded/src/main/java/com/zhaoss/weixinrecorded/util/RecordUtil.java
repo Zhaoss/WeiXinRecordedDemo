@@ -7,6 +7,8 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
 
+import com.libyuv.LibyuvUtil;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,20 +29,23 @@ public class RecordUtil {
 
     private ArrayBlockingQueue<byte[]> videoQueue;
     private ArrayBlockingQueue<byte[]> audioQueue = new ArrayBlockingQueue<>(10);
-    private int width;
-    private int height;
+    private int videoWidth;
+    private int videoHeight;
     private AtomicBoolean isRecording = new AtomicBoolean(false);
     private AudioRecord audioRecord;
     private MediaCodec videoMediaCodec;
     private FileOutputStream videoOut;
     private FileOutputStream audioOut;
+    private int rotation;
     private boolean isFrontCamera;
 
-    public RecordUtil(String videoPath, String audioPath, int width, int height, ArrayBlockingQueue<byte[]> videoQueue){
+    public RecordUtil(String videoPath, String audioPath, int videoWidth, int videoHeight, int rotation, boolean isFrontCamera, ArrayBlockingQueue<byte[]> videoQueue){
 
         this.videoQueue = videoQueue;
-        this.width = width;
-        this.height = height;
+        this.videoWidth = videoWidth;
+        this.videoHeight = videoHeight;
+        this.rotation = rotation;
+        this.isFrontCamera = isFrontCamera;
 
         try {
             initVideoMediaCodec();
@@ -65,9 +70,14 @@ public class RecordUtil {
     }
 
     private void initVideoMediaCodec()throws Exception{
-        MediaFormat mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
+        MediaFormat mediaFormat;
+        if(rotation==90 || rotation==270){
+            mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, videoHeight, videoWidth);
+        }else{
+            mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, videoWidth, videoHeight);
+        }
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar);
-        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, width*height*3);
+        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, videoWidth*videoHeight*3);
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate);
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         videoMediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC);
@@ -80,8 +90,7 @@ public class RecordUtil {
         audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT, audioBufferSize);
     }
 
-    public void start(boolean isFrontCamera){
-        this.isFrontCamera = isFrontCamera;
+    public void start(){
         isRecording.set(true);
         startRecordAudio();
         startWhile();
@@ -146,7 +155,7 @@ public class RecordUtil {
     private long startTime = 0;
     private int frameNum = 0;
     private byte[] configByte;
-    private void encodeVideo(byte[] data)throws IOException {
+    private void encodeVideo(byte[] nv21)throws IOException {
 
         frameNum++;
         int rightTime = frameNum*frameTime;
@@ -156,12 +165,14 @@ public class RecordUtil {
             return ;
         }
 
-        byte[] yuv420sp = new byte[width * height * 3 / 2];
-        NV21ToNV12(data, yuv420sp, width, height);
-        if (isFrontCamera) {
-            yuv420sp = rotateYUV420Degree180(yuv420sp, width, height);
-        }
-        data = yuv420sp;
+        byte[] nv12 = new byte[nv21.length];
+        byte[] yuvI420 = new byte[nv21.length];
+        byte[] tempYuvI420 = new byte[nv21.length];
+
+        LibyuvUtil.convertNV21ToI420(nv21, yuvI420, videoWidth, videoHeight);
+        LibyuvUtil.compressI420(yuvI420, videoWidth, videoHeight, tempYuvI420, videoWidth, videoHeight, rotation, isFrontCamera);
+        LibyuvUtil.convertI420ToNV12(tempYuvI420, nv12, videoWidth, videoHeight);
+
         //得到编码器的输入和输出流, 输入流写入源数据 输出流读取编码后的数据
         //得到要使用的缓存序列角标
         int inputBufferIndex = videoMediaCodec.dequeueInputBuffer(-1);
@@ -169,9 +180,9 @@ public class RecordUtil {
             ByteBuffer inputBuffer = videoMediaCodec.getInputBuffer(inputBufferIndex);
             inputBuffer.clear();
             //把要编码的数据添加进去
-            inputBuffer.put(data);
+            inputBuffer.put(nv12);
             //塞到编码序列中, 等待MediaCodec编码
-            videoMediaCodec.queueInputBuffer(inputBufferIndex, 0, data.length,  System.nanoTime()/1000, 0);
+            videoMediaCodec.queueInputBuffer(inputBufferIndex, 0, nv12.length,  System.nanoTime()/1000, 0);
         }
 
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
@@ -222,6 +233,34 @@ public class RecordUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private byte[] rotateYUVDegree270AndMirror(byte[] data, int imageWidth, int imageHeight) {
+        byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
+        // Rotate and mirror the Y luma
+        int i = 0;
+        int maxY = 0;
+        for (int x = imageWidth - 1; x >= 0; x--) {
+            maxY = imageWidth * (imageHeight - 1) + x * 2;
+            for (int y = 0; y < imageHeight; y++) {
+                yuv[i] = data[maxY - (y * imageWidth + x)];
+                i++;
+            }
+        }
+        // Rotate and mirror the U and V color components
+        int uvSize = imageWidth * imageHeight;
+        i = uvSize;
+        int maxUV = 0;
+        for (int x = imageWidth - 1; x > 0; x = x - 2) {
+            maxUV = imageWidth * (imageHeight / 2 - 1) + x * 2 + uvSize;
+            for (int y = 0; y < imageHeight / 2; y++) {
+                yuv[i] = data[maxUV - 2 - (y * imageWidth + x - 1)];
+                i++;
+                yuv[i] = data[maxUV - (y * imageWidth + x)];
+                i++;
+            }
+        }
+        return yuv;
     }
 
     private byte[] rotateYUV420Degree180(byte[] data, int imageWidth, int imageHeight) {

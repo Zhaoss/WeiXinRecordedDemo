@@ -240,7 +240,7 @@ public class CameraHelp {
     }
 
     //得到摄像旋转角度
-    public int getCameraDisplayOrientation(Activity activity, int cameraId) {
+    private int getCameraDisplayOrientation(Activity activity, int cameraId) {
 
         Camera.CameraInfo info = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, info);

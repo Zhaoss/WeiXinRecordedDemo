@@ -22,6 +22,7 @@ import com.lansosdk.videoeditor.LanSoEditor;
 import com.lansosdk.videoeditor.LanSongFileUtil;
 import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
+import com.libyuv.LibyuvUtil;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
@@ -91,6 +92,7 @@ public class RecordedActivity extends BaseActivity {
 
         LanSoEditor.initSDK(this, null);
         LanSongFileUtil.setFileDir("/sdcard/WeiXinRecorded/"+System.currentTimeMillis()+"/");
+        LibyuvUtil.loadLibrary();
 
         initUI();
         initData();
@@ -310,8 +312,6 @@ public class RecordedActivity extends BaseActivity {
                 String aacPath = mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
                 //合成视频
                 String mp4Path = mVideoEditor.executeConvertTsToMp4(tsList.toArray(new String[]{}));
-                //旋转视频
-                mp4Path = mVideoEditor.executeSetVideoMetaAngle(mp4Path, mCameraHelp.getCameraDisplayOrientation(mContext, Camera.CameraInfo.CAMERA_FACING_BACK));
                 //音视频混合
                 mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, aacPath);
                 return mp4Path;
@@ -366,8 +366,15 @@ public class RecordedActivity extends BaseActivity {
 
         videoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
         audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
-        recordUtil = new RecordUtil(videoPath, audioPath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), mYUVQueue);
-        recordUtil.start(mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT);
+        boolean isFrontCamera = mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT;
+        int rotation;
+        if(isFrontCamera){
+            rotation = 270;
+        }else{
+            rotation = 90;
+        }
+        recordUtil = new RecordUtil(videoPath, audioPath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), rotation, isFrontCamera, mYUVQueue);
+        recordUtil.start();
 
         videoDuration = 0;
         lineProgressView.setSplit();
@@ -375,7 +382,7 @@ public class RecordedActivity extends BaseActivity {
         RxJavaUtil.loop(20, new RxJavaUtil.OnRxLoopListener() {
             @Override
             public Boolean takeWhile(){
-                return recordUtil.isRecording();
+                return recordUtil!=null && recordUtil.isRecording();
             }
             @Override
             public void onExecute() {
@@ -412,6 +419,7 @@ public class RecordedActivity extends BaseActivity {
     private void upEvent(){
         if(recordUtil != null) {
             recordUtil.stop();
+            recordUtil = null;
         }
         initRecorderState();
     }
