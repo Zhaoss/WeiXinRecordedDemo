@@ -220,7 +220,7 @@ public class RecordUtil {
         return isRecording.get();
     }
 
-    private void release(){
+    public void release(){
         try {
             audioRecord.stop();
             audioRecord.release();

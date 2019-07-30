@@ -2,11 +2,6 @@ package com.zhaoss.weixinrecorded.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
@@ -133,15 +128,16 @@ public class RecordedActivity extends BaseActivity {
         mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
-                if(isRecordVideo.get()){
-                    if (mYUVQueue.size() >= 10) {
-                        mYUVQueue.poll();
-                    }
-                    mYUVQueue.add(data);
-                }
                 if(isShotPhoto.get()){
                     isShotPhoto.set(false);
                     shotPhoto(data);
+                }else{
+                    if(isRecordVideo.get()){
+                        if (mYUVQueue.size() >= 10) {
+                            mYUVQueue.poll();
+                        }
+                        mYUVQueue.add(data);
+                    }
                 }
             }
         });
@@ -181,7 +177,7 @@ public class RecordedActivity extends BaseActivity {
         });
     }
 
-    private void shotPhoto(final byte[] data){
+    private void shotPhoto(final byte[] nv21){
 
         TextView textView = showProgressDialog();
         textView.setText("图片截取中");
@@ -189,27 +185,33 @@ public class RecordedActivity extends BaseActivity {
             @Override
             public String doInBackground() throws Throwable {
 
+                boolean isFrontCamera = mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT;
+                int rotation;
+                if(isFrontCamera){
+                    rotation = 270;
+                }else{
+                    rotation = 90;
+                }
+
+                byte[] yuvI420 = new byte[nv21.length];
+                byte[] tempYuvI420 = new byte[nv21.length];
+
+                int videoWidth =  mCameraHelp.getHeight();
+                int videoHeight =  mCameraHelp.getWidth();
+
+                LibyuvUtil.convertNV21ToI420(nv21, yuvI420, mCameraHelp.getWidth(), mCameraHelp.getHeight());
+                LibyuvUtil.compressI420(yuvI420, mCameraHelp.getWidth(), mCameraHelp.getHeight(), tempYuvI420,
+                        mCameraHelp.getWidth(), mCameraHelp.getHeight(), rotation, isFrontCamera);
+
+                Bitmap bitmap = Bitmap.createBitmap(videoWidth, videoHeight, Bitmap.Config.ARGB_8888);
+
+                LibyuvUtil.convertI420ToBitmap(tempYuvI420, bitmap, videoWidth, videoHeight);
+
                 String photoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".jpeg";
                 FileOutputStream fos = new FileOutputStream(photoPath);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.close();
 
-                //把NV21数据输出成jpeg
-                YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21, mCameraHelp.getWidth(), mCameraHelp.getHeight(), null);
-                yuvimage.compressToJpeg(new Rect(0, 0, yuvimage.getWidth(), yuvimage.getHeight()), 100, fos);
-                fos.close();
-                //注意这里, 因为之前初始化camera就说过了, camera出来的画面是旋转的 所以我们这里也手动把图片旋转一下
-                Matrix matrix = new Matrix();
-                if(mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_FRONT){
-                    matrix.setRotate(360-mCameraHelp.getDisplayOrientation());
-                    //如果是前置摄像头, 那么镜像一下
-                    matrix.postScale(-1, 1);
-                }else{
-                    matrix.setRotate(mCameraHelp.getDisplayOrientation());
-                }
-                Bitmap photoBitmap = BitmapFactory.decodeFile(photoPath);
-                photoBitmap = Bitmap.createBitmap(photoBitmap, 0, 0, photoBitmap.getWidth(), photoBitmap.getHeight(), matrix, false);
-                fos = new FileOutputStream(photoPath);
-                photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                fos.close();
                 return photoPath;
             }
             @Override
@@ -364,21 +366,43 @@ public class RecordedActivity extends BaseActivity {
     private String videoPath;
     private void startRecord(){
 
-        videoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
-        audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
-        boolean isFrontCamera = mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT;
-        int rotation;
-        if(isFrontCamera){
-            rotation = 270;
-        }else{
-            rotation = 90;
-        }
-        recordUtil = new RecordUtil(videoPath, audioPath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), rotation, isFrontCamera, mYUVQueue);
-        recordUtil.start();
+        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Boolean>() {
+            @Override
+            public Boolean doInBackground() throws Throwable {
+                videoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
+                audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
+                final boolean isFrontCamera = mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT;
+                final int rotation;
+                if(isFrontCamera){
+                    rotation = 270;
+                }else{
+                    rotation = 90;
+                }
+                recordUtil = new RecordUtil(videoPath, audioPath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), rotation, isFrontCamera, mYUVQueue);
+                return true;
+            }
+            @Override
+            public void onFinish(Boolean result) {
+                if(recordView.isDown()){
+                    recordUtil.start();
+                    videoDuration = 0;
+                    lineProgressView.setSplit();
+                    recordTime = System.currentTimeMillis();
+                    runLoopPro();
+                }else{
+                    recordUtil.release();
+                    recordUtil = null;
+                }
+            }
+            @Override
+            public void onError(Throwable e) {
 
-        videoDuration = 0;
-        lineProgressView.setSplit();
-        recordTime = System.currentTimeMillis();
+            }
+        });
+    }
+
+    private void runLoopPro(){
+
         RxJavaUtil.loop(20, new RxJavaUtil.OnRxLoopListener() {
             @Override
             public Boolean takeWhile(){
@@ -402,7 +426,6 @@ public class RecordedActivity extends BaseActivity {
             }
             @Override
             public void onFinish() {
-
                 segmentList.add(videoPath);
                 aacList.add(audioPath);
                 timeList.add(videoDuration);

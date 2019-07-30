@@ -82,12 +82,18 @@ public class RecordView extends View {
         @Override
         public void handleMessage(Message msg) {
             if(mOnGestureListener != null) {
+                down = true;
+                invalidate();
                 mOnGestureListener.onDown();
             }
         }
     };
 
-    private boolean isDown;
+    public boolean isDown(){
+        return down;
+    }
+
+    private boolean down;
     private float downX;
     private float downY;
     @Override
@@ -99,11 +105,7 @@ public class RecordView extends View {
                 parent.requestDisallowInterceptTouchEvent(true);
                 downX = event.getRawX();
                 downY = event.getRawY();
-
-                mHandler.sendEmptyMessageDelayed(0, 100);
-
-                isDown = true;
-                invalidate();
+                mHandler.sendEmptyMessageDelayed(0, 200);
                 break;
             case MotionEvent.ACTION_MOVE:
 
@@ -114,6 +116,7 @@ public class RecordView extends View {
                 float upX = event.getRawX();
                 float upY = event.getRawY();
                 if(mHandler.hasMessages(0)){
+                    mHandler.removeMessages(0);
                     if (Math.abs(upX - downX) < slideDis && Math.abs(upY - downY) < slideDis) {
                         if(mOnGestureListener != null) {
                             mOnGestureListener.onClick();
@@ -131,7 +134,7 @@ public class RecordView extends View {
     }
 
     public void initState(){
-        isDown = false;
+        down = false;
         mHandler.removeMessages(0);
         invalidate();
     }
@@ -152,7 +155,7 @@ public class RecordView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(isDown){
+        if(down){
             paint.setColor(ContextCompat.getColor(getContext(), downColor));
             if(changeStrokeWidth){
                 if (isAdd) {
