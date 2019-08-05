@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -70,7 +69,6 @@ public class RecordedActivity extends BaseActivity {
     //拍照
     private AtomicBoolean isShotPhoto = new AtomicBoolean(false);
     private CameraHelp mCameraHelp = new CameraHelp();
-    private ArrayBlockingQueue<byte[]> mYUVQueue = new ArrayBlockingQueue<>(10);
     private SurfaceHolder mSurfaceHolder;
     private MyVideoEditor mVideoEditor = new MyVideoEditor();
     private RecordUtil recordUtil;
@@ -78,6 +76,7 @@ public class RecordedActivity extends BaseActivity {
     private int executeCount;//总编译次数
     private float executeProgress;//编译进度
     private String audioPath;
+    private RecordUtil.OnPreviewFrameListener mOnPreviewFrameListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +123,6 @@ public class RecordedActivity extends BaseActivity {
     }
 
     private void initMediaRecorder() {
-
         mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
@@ -132,11 +130,8 @@ public class RecordedActivity extends BaseActivity {
                     isShotPhoto.set(false);
                     shotPhoto(data);
                 }else{
-                    if(isRecordVideo.get()){
-                        if (mYUVQueue.size() >= 10) {
-                            mYUVQueue.poll();
-                        }
-                        mYUVQueue.add(data);
+                    if(isRecordVideo.get() && mOnPreviewFrameListener!=null){
+                        mOnPreviewFrameListener.onPreviewFrame(data);
                     }
                 }
             }
@@ -378,13 +373,13 @@ public class RecordedActivity extends BaseActivity {
                 }else{
                     rotation = 90;
                 }
-                recordUtil = new RecordUtil(videoPath, audioPath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), rotation, isFrontCamera, mYUVQueue);
+                recordUtil = new RecordUtil(videoPath, audioPath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), rotation, isFrontCamera);
                 return true;
             }
             @Override
             public void onFinish(Boolean result) {
                 if(recordView.isDown()){
-                    recordUtil.start();
+                    mOnPreviewFrameListener = recordUtil.start();
                     videoDuration = 0;
                     lineProgressView.setSplit();
                     recordTime = System.currentTimeMillis();

@@ -27,8 +27,7 @@ public class RecordUtil {
 
     private int audioBufferSize; //缓存大小
 
-    private ArrayBlockingQueue<byte[]> videoQueue;
-    private ArrayBlockingQueue<byte[]> audioQueue = new ArrayBlockingQueue<>(10);
+    private ArrayBlockingQueue<byte[]> videoQueue = new ArrayBlockingQueue<>(3);
     private int videoWidth;
     private int videoHeight;
     private AtomicBoolean isRecording = new AtomicBoolean(false);
@@ -39,9 +38,8 @@ public class RecordUtil {
     private int rotation;
     private boolean isFrontCamera;
 
-    public RecordUtil(String videoPath, String audioPath, int videoWidth, int videoHeight, int rotation, boolean isFrontCamera, ArrayBlockingQueue<byte[]> videoQueue){
+    public RecordUtil(String videoPath, String audioPath, int videoWidth, int videoHeight, int rotation, boolean isFrontCamera){
 
-        this.videoQueue = videoQueue;
         this.videoWidth = videoWidth;
         this.videoHeight = videoHeight;
         this.rotation = rotation;
@@ -90,10 +88,24 @@ public class RecordUtil {
         audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT, audioBufferSize);
     }
 
-    public void start(){
+    public OnPreviewFrameListener start(){
         isRecording.set(true);
         startRecordAudio();
         startWhile();
+        return mOnPreviewFrameListener;
+    }
+
+    private OnPreviewFrameListener mOnPreviewFrameListener = new OnPreviewFrameListener() {
+        @Override
+        public void onPreviewFrame(final byte[] data) {
+            if (videoQueue.size() < 3) {
+                videoQueue.add(data);
+            }
+        }
+    };
+
+    public interface OnPreviewFrameListener{
+        void onPreviewFrame(byte[] data);
     }
 
     private void startRecordAudio(){
@@ -104,10 +116,7 @@ public class RecordUtil {
                 while (isRecording.get()) {
                     byte[] data = new byte[audioBufferSize];
                     if (audioRecord.read(data, 0, audioBufferSize) != AudioRecord.ERROR_INVALID_OPERATION) {
-                        if(audioQueue.size() >= 10){
-                            audioQueue.poll();
-                        }
-                        audioQueue.add(data);
+                        audioOut.write(data);
                     }
                 }
                 return true;
@@ -128,14 +137,10 @@ public class RecordUtil {
             public Boolean doInBackground() throws Throwable {
 
                 startTime = System.currentTimeMillis();
-                while (isRecording.get() || videoQueue.size()>0 || audioQueue.size()>0) {
+                while (isRecording.get() || videoQueue.size()>0) {
                     byte[] videoData = videoQueue.poll();
                     if(videoData != null){
                         encodeVideo(videoData);
-                    }
-                    byte[] audioData = audioQueue.poll();
-                    if(audioData != null){
-                        audioOut.write(audioData);
                     }
                 }
                 return true;
@@ -152,16 +157,12 @@ public class RecordUtil {
         });
     }
 
-    private long startTime = 0;
-    private int frameNum = 0;
     private byte[] configByte;
     private void encodeVideo(byte[] nv21)throws IOException {
 
-        frameNum++;
-        int rightTime = frameNum*frameTime;
-        int runTime = (int) (System.currentTimeMillis()-startTime+frameTime);
-        if (runTime < rightTime) {
-            frameNum--;
+        currFrame++;
+        if(checkMaxFrame()){
+            currFrame--;
             return ;
         }
 
@@ -175,40 +176,85 @@ public class RecordUtil {
 
         //得到编码器的输入和输出流, 输入流写入源数据 输出流读取编码后的数据
         //得到要使用的缓存序列角标
-        int inputBufferIndex = videoMediaCodec.dequeueInputBuffer(-1);
-        if (inputBufferIndex >= 0) {
-            ByteBuffer inputBuffer = videoMediaCodec.getInputBuffer(inputBufferIndex);
+        int inputIndex = videoMediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
+        if (inputIndex >= 0) {
+            ByteBuffer inputBuffer = videoMediaCodec.getInputBuffer(inputIndex);
             inputBuffer.clear();
             //把要编码的数据添加进去
             inputBuffer.put(nv12);
             //塞到编码序列中, 等待MediaCodec编码
-            videoMediaCodec.queueInputBuffer(inputBufferIndex, 0, nv12.length,  System.nanoTime()/1000, 0);
+            videoMediaCodec.queueInputBuffer(inputIndex, 0, nv12.length,  System.nanoTime()/1000, 0);
         }
 
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         //读取MediaCodec编码后的数据
-        int outputBufferIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
-        while (outputBufferIndex >= 0) {
-            ByteBuffer outputBuffer = videoMediaCodec.getOutputBuffer(outputBufferIndex);
-            byte[] outData = new byte[bufferInfo.size];
+        int outputIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
+        byte[] frameData = null;
+        int destPos = 0;
+        while (outputIndex >= 0) {
+            ByteBuffer outputBuffer = videoMediaCodec.getOutputBuffer(outputIndex);
+            byte[] h264 = new byte[bufferInfo.size];
             //这步就是编码后的h264数据了
-            outputBuffer.get(outData);
-            if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_CODEC_CONFIG) {//视频信息
-                configByte = new byte[bufferInfo.size];
-                configByte = outData;
-            } else if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_KEY_FRAME) {//关键帧
-                byte[] keyframe = new byte[bufferInfo.size + configByte.length];
-                System.arraycopy(configByte, 0, keyframe, 0, configByte.length);
-                System.arraycopy(outData, 0, keyframe, configByte.length, outData.length);
-                videoOut.write(keyframe, 0, keyframe.length);
-            } else {//正常的媒体数据
-                videoOut.write(outData, 0, outData.length);
+            outputBuffer.get(h264);
+            switch (bufferInfo.flags) {
+                case MediaCodec.BUFFER_FLAG_CODEC_CONFIG://视频信息
+                    configByte = new byte[bufferInfo.size];
+                    configByte = h264;
+                    break;
+                case MediaCodec.BUFFER_FLAG_KEY_FRAME://关键帧
+                    videoOut.write(configByte, 0, configByte.length);
+                    videoOut.write(h264, 0, h264.length);
+                    break;
+                default://正常帧
+                    videoOut.write(h264, 0, h264.length);
+                    if(frameData == null) {
+                        frameData = new byte[bufferInfo.size];
+                    }
+                    System.arraycopy(h264, 0, frameData, destPos, h264.length);
+                    break;
             }
             videoOut.flush();
             //数据写入本地成功 通知MediaCodec释放data
-            videoMediaCodec.releaseOutputBuffer(outputBufferIndex, false);
+            videoMediaCodec.releaseOutputBuffer(outputIndex, false);
             //读取下一次编码数据
-            outputBufferIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
+            outputIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
+
+            if(frameData != null){
+                if(outputIndex >= 0){
+                    destPos = frameData.length;
+                    byte[] temp = new byte[frameData.length + bufferInfo.size];
+                    System.arraycopy(frameData, 0, temp, 0, frameData.length);
+                    frameData = temp;
+                }else{
+                    if(checkMinFrame()){
+                        //currFrame++;
+                        //videoOut.write(frameData, 0, frameData.length);
+                        //Log.i("Log.i", frameData.length+"   aaa");
+                    }
+                }
+            }
+        }
+    }
+
+    private long startTime = 0;
+    private int currFrame = 0;
+    private boolean checkMaxFrame(){
+
+        int rightFrame = (int) ((System.currentTimeMillis()-startTime)/frameTime);
+        if (currFrame > rightFrame) {
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private boolean checkMinFrame(){
+
+        int rightFrame = (int) ((System.currentTimeMillis()-startTime)/frameTime);
+        if (currFrame < rightFrame) {
+            return true;
+        }else{
+            return false;
         }
     }
 
