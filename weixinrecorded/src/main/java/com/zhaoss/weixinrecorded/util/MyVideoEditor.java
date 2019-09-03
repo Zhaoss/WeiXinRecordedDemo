@@ -68,4 +68,29 @@ public class MyVideoEditor extends VideoEditor {
             return -1;
         }
     }
+
+    public String demo2() {
+
+        //ffmpeg -y -i test2.mp4 -ignore_loop 0 -i test.gif  -filter_complex overlay=0:H-h test_out2.mp4
+
+        ArrayList<String> cmdList = new ArrayList<>();
+
+        cmdList.add("-y");
+
+        cmdList.add("-i");
+        cmdList.add("/sdcard/AAAA/demo.mp4");
+
+        cmdList.add("-ignore_loop");
+        cmdList.add("0");
+
+        cmdList.add("-i");
+        cmdList.add("/sdcard/AAAA/demo11.gif");
+
+        cmdList.add("-filter_complex");
+        cmdList.add("overlay=0:H-h");
+        cmdList.add("-t");
+        cmdList.add("10");
+
+        return executeAutoSwitch(cmdList);
+    }
 }

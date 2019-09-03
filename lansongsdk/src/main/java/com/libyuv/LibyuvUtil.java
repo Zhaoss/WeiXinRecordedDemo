@@ -9,6 +9,11 @@ public class LibyuvUtil {
     }
 
     /**
+     * 将 YUV420 转 I420
+     */
+    public static native void convertYUV420ToI420(byte[] srcY, byte[] srcU, byte[] srcV, byte[] dst, int pixelStride, int width, int height);
+
+    /**
      * 将 NV21 转 I420
      */
     public static native void convertNV21ToI420(byte[] src, byte[] dst, int width, int height);

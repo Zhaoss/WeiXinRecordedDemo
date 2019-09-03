@@ -8,6 +8,10 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
     }
     buildTypes {
         release {
@@ -23,4 +27,5 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation project(path: ':weixinrecorded')
     implementation 'com.yanzhenjie:permission:1.1.2'
+    implementation project(path: ':lansongsdk')
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -122,10 +123,14 @@ public class RecordedActivity extends BaseActivity {
         });
     }
 
+    int num;
     private void initMediaRecorder() {
         mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
+
+                num++;
+                Log.i("Log.i", num+"   "+System.currentTimeMillis());
                 if(isShotPhoto.get()){
                     isShotPhoto.set(false);
                     shotPhoto(data);

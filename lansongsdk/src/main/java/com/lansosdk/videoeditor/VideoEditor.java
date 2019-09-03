@@ -263,8 +263,6 @@ public class VideoEditor {
 
     @SuppressWarnings("unused") /* Used from JNI */
     private void postEventFromNative(int what, int arg1, int arg2) {
-        Log.i(TAG, "postEvent from native  is:" + what);
-
         if (mEventHandler != null) {
             Message msg = mEventHandler.obtainMessage(VIDEOEDITOR_HANDLER_PROGRESS);
             msg.arg1 = what;
@@ -1406,7 +1404,7 @@ public class VideoEditor {
         }
         return null;
     }
-    protected String executeConvertMp4toTs(String mp4Path) {
+    public String executeConvertMp4toTs(String mp4Path) {
         if (fileExist(mp4Path)) {
 
             List<String> cmdList = new ArrayList<String>();
@@ -1781,6 +1779,36 @@ public class VideoEditor {
         } else {
             return null;
         }
+    }
+
+    /**
+     * 画面裁剪.
+     *
+     * @param videoFile 输入文件完整路径
+     * @param cropX  画面裁剪的开始X坐标
+     * @param cropY  画面裁剪的开始Y坐标
+     * @param cropWidth  画面裁剪的宽度
+     * @param cropHeight  画面裁剪的高度.
+     * @return
+     */
+    public String executeCrop(String videoFile, int cropX, int cropY, int cropWidth, int cropHeight) {
+
+        String filter = String.format(Locale.getDefault(), "crop=%d:%d:%d:%d", cropWidth, cropHeight, cropX, cropY);
+
+        List<String> cmdList = new ArrayList<String>();
+        cmdList.add("-vcodec");
+        cmdList.add("lansoh264_dec");
+
+        cmdList.add("-i");
+        cmdList.add(videoFile);
+
+        cmdList.add("-filter_complex");
+        cmdList.add(filter);
+
+        cmdList.add("-acodec");
+        cmdList.add("copy");
+
+        return executeAutoSwitch(cmdList);
     }
 
     /**
@@ -2695,7 +2723,7 @@ public class VideoEditor {
             return false;
         }
     }
-    private String executeConvertBmpToGif(String bmpPaths,float framerate)
+    public String executeConvertBmpToGif(String bmpPaths,float framerate)
     {
         String gifPath=LanSongFileUtil.createGIFFileInBox();
 

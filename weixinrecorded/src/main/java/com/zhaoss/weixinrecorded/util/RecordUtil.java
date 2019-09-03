@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RecordUtil {
 
     public final static int TIMEOUT_USEC = 10000;
-    public final static int frameRate = 25;
+    public final static int frameRate = 30;
     public final static int frameTime = 1000/frameRate;
     public final static int sampleRateInHz = 44100;
     public final static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
@@ -70,13 +70,18 @@ public class RecordUtil {
     private void initVideoMediaCodec()throws Exception{
         MediaFormat mediaFormat;
         if(rotation==90 || rotation==270){
+            //设置视频宽高
             mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, videoHeight, videoWidth);
         }else{
             mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, videoWidth, videoHeight);
         }
+        //图像数据格式 YUV420
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar);
+        //码率
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, videoWidth*videoHeight*3);
+        //每秒30帧
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate);
+        //1秒一个关键帧
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         videoMediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC);
         videoMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -225,12 +230,6 @@ public class RecordUtil {
                     byte[] temp = new byte[frameData.length + bufferInfo.size];
                     System.arraycopy(frameData, 0, temp, 0, frameData.length);
                     frameData = temp;
-                }else{
-                    if(checkMinFrame()){
-                        //currFrame++;
-                        //videoOut.write(frameData, 0, frameData.length);
-                        //Log.i("Log.i", frameData.length+"   aaa");
-                    }
                 }
             }
         }
@@ -242,16 +241,6 @@ public class RecordUtil {
 
         int rightFrame = (int) ((System.currentTimeMillis()-startTime)/frameTime);
         if (currFrame > rightFrame) {
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-    private boolean checkMinFrame(){
-
-        int rightFrame = (int) ((System.currentTimeMillis()-startTime)/frameTime);
-        if (currFrame < rightFrame) {
             return true;
         }else{
             return false;
@@ -278,69 +267,6 @@ public class RecordUtil {
             videoMediaCodec.release();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private byte[] rotateYUVDegree270AndMirror(byte[] data, int imageWidth, int imageHeight) {
-        byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
-        // Rotate and mirror the Y luma
-        int i = 0;
-        int maxY = 0;
-        for (int x = imageWidth - 1; x >= 0; x--) {
-            maxY = imageWidth * (imageHeight - 1) + x * 2;
-            for (int y = 0; y < imageHeight; y++) {
-                yuv[i] = data[maxY - (y * imageWidth + x)];
-                i++;
-            }
-        }
-        // Rotate and mirror the U and V color components
-        int uvSize = imageWidth * imageHeight;
-        i = uvSize;
-        int maxUV = 0;
-        for (int x = imageWidth - 1; x > 0; x = x - 2) {
-            maxUV = imageWidth * (imageHeight / 2 - 1) + x * 2 + uvSize;
-            for (int y = 0; y < imageHeight / 2; y++) {
-                yuv[i] = data[maxUV - 2 - (y * imageWidth + x - 1)];
-                i++;
-                yuv[i] = data[maxUV - (y * imageWidth + x)];
-                i++;
-            }
-        }
-        return yuv;
-    }
-
-    private byte[] rotateYUV420Degree180(byte[] data, int imageWidth, int imageHeight) {
-        byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
-        int i = 0;
-        int count = 0;
-
-        for (i = imageWidth * imageHeight - 1; i >= 0; i--) {
-            yuv[count] = data[i];
-            count++;
-        }
-
-        i = imageWidth * imageHeight * 3 / 2 - 1;
-        for (i = imageWidth * imageHeight * 3 / 2 - 1; i >= imageWidth
-                * imageHeight; i -= 2) {
-            yuv[count++] = data[i - 1];
-            yuv[count++] = data[i];
-        }
-        return yuv;
-    }
-
-    private void NV21ToNV12(byte[] nv21,byte[] nv12,int width,int height){
-        if(nv21 == null || nv12 == null)return;
-        int framesize = width*height;
-        int i = 0,j = 0;
-        System.arraycopy(nv21, 0, nv12, 0, framesize);
-        for(i = 0; i < framesize; i++){
-            nv12[i] = nv21[i];
-        }
-        for (j = 0; j < framesize/2; j+=2) {
-            nv12[framesize + j-1] = nv21[j+framesize];
-        }
-        for (j = 0; j < framesize/2; j+=2) {
-            nv12[framesize + j] = nv21[j+framesize-1];
         }
     }
 }
