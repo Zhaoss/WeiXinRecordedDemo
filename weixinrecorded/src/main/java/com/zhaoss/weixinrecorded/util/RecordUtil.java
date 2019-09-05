@@ -268,5 +268,15 @@ public class RecordUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            if(audioOut!=null){
+                audioOut.close();
+            }
+            if(videoOut!=null){
+                videoOut.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
