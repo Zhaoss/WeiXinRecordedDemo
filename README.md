@@ -30,9 +30,7 @@
 10.基于ffmpeg拍照.
 ```
 
-# 如果想了解实现思路, 这里有详细源码分析讲解
-
-[从底层分析视频录制那点事](https://juejin.im/post/5d6ce742e51d456206115a5b)
+# [如果想了解实现思路, 这里有详细源码分析讲解](https://juejin.im/post/5d6ce742e51d456206115a5b)
 
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo1.png?raw=true)
 ![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo2.png?raw=true)
