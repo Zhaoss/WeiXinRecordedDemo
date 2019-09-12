@@ -6,6 +6,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
+import android.util.Log;
 
 import com.libyuv.LibyuvUtil;
 
@@ -194,8 +195,6 @@ public class RecordUtil {
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         //读取MediaCodec编码后的数据
         int outputIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
-        byte[] frameData = null;
-        int destPos = 0;
         while (outputIndex >= 0) {
             ByteBuffer outputBuffer = videoMediaCodec.getOutputBuffer(outputIndex);
             byte[] h264 = new byte[bufferInfo.size];
@@ -205,6 +204,7 @@ public class RecordUtil {
                 case MediaCodec.BUFFER_FLAG_CODEC_CONFIG://视频信息
                     configByte = new byte[bufferInfo.size];
                     configByte = h264;
+                    Log.i("Log.i", configByte.length+"   aaa");
                     break;
                 case MediaCodec.BUFFER_FLAG_KEY_FRAME://关键帧
                     videoOut.write(configByte, 0, configByte.length);
@@ -212,10 +212,6 @@ public class RecordUtil {
                     break;
                 default://正常帧
                     videoOut.write(h264, 0, h264.length);
-                    if(frameData == null) {
-                        frameData = new byte[bufferInfo.size];
-                    }
-                    System.arraycopy(h264, 0, frameData, destPos, h264.length);
                     break;
             }
             videoOut.flush();
@@ -223,15 +219,6 @@ public class RecordUtil {
             videoMediaCodec.releaseOutputBuffer(outputIndex, false);
             //读取下一次编码数据
             outputIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
-
-            if(frameData != null){
-                if(outputIndex >= 0){
-                    destPos = frameData.length;
-                    byte[] temp = new byte[frameData.length + bufferInfo.size];
-                    System.arraycopy(frameData, 0, temp, 0, frameData.length);
-                    frameData = temp;
-                }
-            }
         }
     }
 

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -24,6 +23,7 @@ import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
 import com.zhaoss.weixinrecorded.util.RecordUtil;
 import com.zhaoss.weixinrecorded.util.RxJavaUtil;
+import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
 
@@ -114,23 +114,21 @@ public class RecordedActivity extends BaseActivity {
                 float videoRatio = 9f/16f;
                 ViewGroup.LayoutParams layoutParams = surfaceView.getLayoutParams();
                 if(viewRatio > videoRatio){
+                    layoutParams.width = width;
                     layoutParams.height = (int) (width/viewRatio);
                 }else{
                     layoutParams.width = (int) (height*viewRatio);
+                    layoutParams.height = height;
                 }
                 surfaceView.setLayoutParams(layoutParams);
             }
         });
     }
 
-    int num;
     private void initMediaRecorder() {
         mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
-
-                num++;
-                Log.i("Log.i", num+"   "+System.currentTimeMillis());
                 if(isShotPhoto.get()){
                     isShotPhoto.set(false);
                     shotPhoto(data);
@@ -303,17 +301,14 @@ public class RecordedActivity extends BaseActivity {
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
             public String doInBackground()throws Exception{
-                //h264转ts
-                ArrayList<String> tsList = new ArrayList<>();
-                for (int x=0; x<segmentList.size(); x++){
-                    String tsPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".ts";
-                    mVideoEditor.h264ToTs(segmentList.get(x), tsPath);
-                    tsList.add(tsPath);
-                }
+                //合并h264
+                String h264Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
+                Utils.mergeFile(segmentList.toArray(new String[]{}), h264Path);
+                //h264转mp4
+                String mp4Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".mp4";
+                mVideoEditor.h264ToMp4(h264Path, mp4Path);
                 //合成音频
                 String aacPath = mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
-                //合成视频
-                String mp4Path = mVideoEditor.executeConvertTsToMp4(tsList.toArray(new String[]{}));
                 //音视频混合
                 mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, aacPath);
                 return mp4Path;

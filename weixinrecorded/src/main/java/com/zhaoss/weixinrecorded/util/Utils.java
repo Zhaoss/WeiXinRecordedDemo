@@ -2,6 +2,9 @@ package com.zhaoss.weixinrecorded.util;
 
 import android.app.Activity;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 public class Utils {
@@ -79,6 +82,26 @@ public class Utils {
         }
         for (j = 0; j < framesize/2; j+=2) {
             nv12[framesize + j] = nv21[j+framesize-1];
+        }
+    }
+
+    public static void mergeFile(String[] stcs, String des){
+
+        try {
+            FileOutputStream out = new FileOutputStream(des);
+            for (String path : stcs){
+                FileInputStream in = new FileInputStream(path);
+                byte[] buff = new byte[4096];
+                int len;
+                while ((len=in.read(buff))>0){
+                    out.write(buff, 0, len);
+                    out.flush();
+                }
+                in.close();
+            }
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

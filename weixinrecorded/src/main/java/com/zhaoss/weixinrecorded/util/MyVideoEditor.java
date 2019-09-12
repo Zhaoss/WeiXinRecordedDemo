@@ -13,9 +13,9 @@ public class MyVideoEditor extends VideoEditor {
         ArrayList<String> list = new ArrayList<>();
         list.add("-i");
         list.add(src);
-        list.add("-vcodec");
+        list.add("-codec");
         list.add("copy");
-        list.add("-vbsf");
+        list.add("-bsf");
         list.add("h264_mp4toannexb");
         list.add(des);
 

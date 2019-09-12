@@ -19,7 +19,9 @@ public class CameraHelp {
 
     //默认录制大小
     private int[] previewSize = new int[2];
-    private int defaultSize = 1280*720;
+    private final static int defaultSize = 1280*720;
+    private final static float defaultRatio = 9f/16f;
+
     private Camera mCamera;
     private Camera.PreviewCallback previewCallback;
     private int displayOrientation;
@@ -76,29 +78,27 @@ public class CameraHelp {
         Camera.Parameters parameters = mCamera.getParameters();
         List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
 
-        boolean flag = false;
         for (Camera.Size size : supportedPreviewSizes) {
-            if (size.width * size.height == defaultSize) {
+            if ((size.width*size.height==defaultSize) && (size.width*1f/size.height==defaultRatio)) {
                 previewSize[0] = size.width;
                 previewSize[1] = size.height;
-                flag = true;
+                return previewSize;
             }
         }
-        if (!flag) {
-            int difference = 0;
-            int position = 0;
-            for (int x = 0; x < supportedPreviewSizes.size(); x++) {
-                Camera.Size size = supportedPreviewSizes.get(x);
-                int n = Math.abs(defaultSize - size.width * size.height);
-                if (x == 0 || difference > n) {
-                    difference = n;
-                    position = x;
-                }
+
+        int difference = 0;
+        int position = 0;
+        for (int x = 0; x < supportedPreviewSizes.size(); x++) {
+            Camera.Size size = supportedPreviewSizes.get(x);
+            int n = Math.abs(defaultSize - size.width * size.height);
+            if (x == 0 || difference > n) {
+                difference = n;
+                position = x;
             }
-            Camera.Size size = supportedPreviewSizes.get(position);
-            previewSize[0] = size.width;
-            previewSize[1] = size.height;
         }
+        Camera.Size size = supportedPreviewSizes.get(position);
+        previewSize[0] = size.width;
+        previewSize[1] = size.height;
 
         return previewSize;
     }
