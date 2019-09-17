@@ -3,9 +3,6 @@ package com.lansosdk.NoFree;
 import android.content.Context;
 import android.graphics.Bitmap;
 
-import com.lansosdk.NoFree.onExtractFrameCompletedListener;
-import com.lansosdk.NoFree.onExtractFrameErrorListener;
-import com.lansosdk.NoFree.onExtractFrameProgressListener;
 import com.lansosdk.box.ExtractVideoFrame;
 import com.lansosdk.box.onExtractVideoFrameCompletedListener;
 import com.lansosdk.box.onExtractVideoFrameErrorListener;

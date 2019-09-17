@@ -2,8 +2,6 @@ package com.lansosdk.NoFree;
 
 import android.content.Context;
 
-import com.lansosdk.NoFree.onVideoCompressCompletedListener;
-import com.lansosdk.NoFree.onVideoCompressProgressListener;
 import com.lansosdk.box.ScaleExecute;
 import com.lansosdk.box.onScaleCompletedListener;
 import com.lansosdk.box.onScaleProgressListener;
@@ -69,7 +67,7 @@ public class LSOVideoScale {
         if(mediaInfo.prepare()){
             isExecuting = true;
 
-            dstVideo=LanSongFileUtil.createMp4FileInBox();
+            dstVideo= LanSongFileUtil.createMp4FileInBox();
             ScaleExecute vScale = new ScaleExecute(context, srcVideo);  //videoPath是路径
             vScale.setOutputPath(dstVideo);
 

@@ -152,7 +152,7 @@ public class AudioPadExecute {
         if(ret!=null){
             ret.setLooping(isLoop);
         }else{
-            LSLog.e("AudioPadExecute addAudioLayer Error.MediaInfo  is:"+MediaInfo.checkFile(srcPath));
+            LSLog.e("AudioPadExecute addAudioLayer Error.MediaInfo  is:"+ MediaInfo.checkFile(srcPath));
         }
 
         return ret;
@@ -177,7 +177,7 @@ public class AudioPadExecute {
             ret.setLooping(isLoop);
             ret.setVolume(valume);
         }else{
-            LSLog.e("AudioPadExecute addAudioLayer Error.MediaInfo  is:"+MediaInfo.checkFile(srcPath));
+            LSLog.e("AudioPadExecute addAudioLayer Error.MediaInfo  is:"+ MediaInfo.checkFile(srcPath));
         }
         return ret;
     }
@@ -336,7 +336,7 @@ public class AudioPadExecute {
         }
     }
     private  String mergeAudioVideo(String video, String audio,boolean deleteAudio) {
-        String retPath=LanSongFileUtil.createMp4FileInBox();
+        String retPath= LanSongFileUtil.createMp4FileInBox();
         List<String> cmdList = new ArrayList<String>();
 
         cmdList.add("-i");

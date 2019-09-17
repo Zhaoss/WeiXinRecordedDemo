@@ -34,7 +34,7 @@ public class AudioEditor {
     public static String mergeAVDirectly(String audio, String video,boolean deleteVideo) {
         MediaInfo info=new MediaInfo(audio);
         if(info.prepare() && info.isHaveAudio()){
-            String retPath=LanSongFileUtil.createMp4FileInBox();
+            String retPath= LanSongFileUtil.createMp4FileInBox();
 
             String inputAudio = audio;
             List<String> cmdList = new ArrayList<String>();
@@ -113,8 +113,8 @@ public class AudioEditor {
                                               int srcChannel, int dstSample) {
 
         //            ffmpeg -f s16le -ac 2 -ar 48000 -i huo_48000_2.pcm -ac 2 -ar 44100 huo.wav
-        if(LanSongFileUtil.fileExist(srcPcm) && dstSample>0){
-            String dstPath=LanSongFileUtil.createWAVFileInBox();
+        if(fileExist(srcPcm) && dstSample>0){
+            String dstPath= LanSongFileUtil.createWAVFileInBox();
 
 
             List<String> cmdList = new ArrayList<String>();
@@ -164,9 +164,9 @@ public class AudioEditor {
      * @return
      */
     public String  executeConvertToWav(String inputAudio,int dstSample) {
-        if(LanSongFileUtil.fileExist(inputAudio)){
+        if(fileExist(inputAudio)){
 
-            String dstPath=LanSongFileUtil.createWAVFileInBox();
+            String dstPath= LanSongFileUtil.createWAVFileInBox();
 
             List<String> cmdList = new ArrayList<String>();
 
@@ -209,9 +209,9 @@ public class AudioEditor {
      * @return
      */
     public String  executeConvertToMonoWav(String inputAudio,int dstSample) {
-        if(LanSongFileUtil.fileExist(inputAudio)){
+        if(fileExist(inputAudio)){
 
-            String dstPath=LanSongFileUtil.createWAVFileInBox();
+            String dstPath= LanSongFileUtil.createWAVFileInBox();
 
             List<String> cmdList = new ArrayList<String>();
 
@@ -261,9 +261,9 @@ public class AudioEditor {
      */
     public String executeConvertWavToMp3(String wavInput,int dstSample)
     {
-        if(LanSongFileUtil.fileExist(wavInput)){
+        if(fileExist(wavInput)){
 
-            String dstPath=LanSongFileUtil.createMP3FileInBox();
+            String dstPath= LanSongFileUtil.createMP3FileInBox();
 
             List<String> cmdList = new ArrayList<String>();
 
@@ -313,9 +313,9 @@ public class AudioEditor {
      */
     public String executeConvertWavToM4a(String wavInput,int dstSample)
     {
-        if(LanSongFileUtil.fileExist(wavInput)){
+        if(fileExist(wavInput)){
 
-            String dstPath=LanSongFileUtil.createM4AFileInBox();
+            String dstPath= LanSongFileUtil.createM4AFileInBox();
 
             List<String> cmdList = new ArrayList<String>();
 
@@ -365,9 +365,9 @@ public class AudioEditor {
      */
     public String executeConvertM4aToMp3(String input,int dstSample)
     {
-        if(LanSongFileUtil.fileExist(input)){
+        if(fileExist(input)){
 
-            String dstPath=LanSongFileUtil.createMP3FileInBox();
+            String dstPath= LanSongFileUtil.createMP3FileInBox();
 
             List<String> cmdList = new ArrayList<String>();
 
@@ -419,9 +419,9 @@ public class AudioEditor {
      */
     public String executeConvertMp3ToM4a(String input,int dstSample)
     {
-        if(LanSongFileUtil.fileExist(input)){
+        if(fileExist(input)){
 
-            String dstPath=LanSongFileUtil.createM4AFileInBox();
+            String dstPath= LanSongFileUtil.createM4AFileInBox();
 
             List<String> cmdList = new ArrayList<String>();
 
@@ -482,7 +482,7 @@ public class AudioEditor {
         String filter = String.format(Locale.getDefault(), "[0:a]volume=volume=%f[a1]; [1:a]volume=volume=%f[a2]; " +
                 "[a1][a2]amix=inputs=2:duration=first:dropout_transition=2", value1, value2);
 
-        String  dstPath=LanSongFileUtil.createFileInBox("pcm");
+        String  dstPath= LanSongFileUtil.createFileInBox("pcm");
 
         cmdList.add("-f");
         cmdList.add("s16le");
@@ -537,7 +537,7 @@ public class AudioEditor {
     public String executePcmEncodeAac(String srcPach, int samplerate, int channel) {
         List<String> cmdList = new ArrayList<String>();
 
-        String dstPath=LanSongFileUtil.createM4AFileInBox();
+        String dstPath= LanSongFileUtil.createM4AFileInBox();
         cmdList.add("-f");
         cmdList.add("s16le");
         cmdList.add("-ar");
@@ -582,7 +582,7 @@ public class AudioEditor {
 
             List<String> cmdList = new ArrayList<String>();
 
-            String  dstPath=LanSongFileUtil.createM4AFileInBox();
+            String  dstPath= LanSongFileUtil.createM4AFileInBox();
             cmdList.add("-i");
             cmdList.add(mp3Path);
 
@@ -625,7 +625,7 @@ public class AudioEditor {
 
             List<String> cmdList = new ArrayList<String>();
 
-            String dstFile=LanSongFileUtil.createFileInBox(LanSongFileUtil.getFileSuffix(srcFile));
+            String dstFile= LanSongFileUtil.createFileInBox(LanSongFileUtil.getFileSuffix(srcFile));
 
             cmdList.add("-i");
             cmdList.add(srcFile);
@@ -694,7 +694,7 @@ public class AudioEditor {
 
         if(vInfo.prepare() && aInfo.prepare() && aInfo.isHaveAudio()){
 
-            String retPath=LanSongFileUtil.createMp4FileInBox();
+            String retPath= LanSongFileUtil.createMp4FileInBox();
             boolean isAAC="aac".equals(aInfo.aCodecName);
 
             List<String> cmdList = new ArrayList<String>();

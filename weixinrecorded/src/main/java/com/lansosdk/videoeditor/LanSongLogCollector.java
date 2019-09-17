@@ -3,8 +3,6 @@ package com.lansosdk.videoeditor;
 import android.content.Context;
 import android.util.Log;
 
-import com.lansosdk.videoeditor.LanSongFileUtil;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

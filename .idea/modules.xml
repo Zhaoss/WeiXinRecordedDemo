@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/WeiXinRecordedDemo.iml" filepath="$PROJECT_DIR$/WeiXinRecordedDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/lansongsdk/lansongsdk.iml" filepath="$PROJECT_DIR$/lansongsdk/lansongsdk.iml" />
       <module fileurl="file://$PROJECT_DIR$/weixinrecorded/weixinrecorded.iml" filepath="$PROJECT_DIR$/weixinrecorded/weixinrecorded.iml" />
     </modules>
   </component>

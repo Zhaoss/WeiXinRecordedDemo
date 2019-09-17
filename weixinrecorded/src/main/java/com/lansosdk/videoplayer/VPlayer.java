@@ -16,7 +16,7 @@ import java.io.IOException;
  *  此代码仅仅是 VideoPlayer 的简易封装, 目的是让代码更清晰一些. 
  *  
  *  一切API 以 {@link VideoPlayer}中的为准.
- *  
+ *
  *
  */
 public class VPlayer {
@@ -37,11 +37,11 @@ public class VPlayer {
     private VideoPlayer mMediaPlayer = null;
     private int mMainVideoWidth;
     private int mMainVideoHeight;
-    
+
     private int mSurfaceWidth;
     private int mSurfaceHeight;
     private int mVideoRotationDegree;
-    
+
     private VideoPlayer.OnPlayerVideoSizeChangedListener mOnSizeChangedListener;
     private VideoPlayer.OnPlayerCompletionListener mOnCompletionListener;
     private VideoPlayer.OnPlayeFrameUpdateListener mOnPlayerFrameUpdateListener;
@@ -51,13 +51,13 @@ public class VPlayer {
     private VideoPlayer.OnPlayerErrorListener mOnErrorListener;
     private VideoPlayer.OnPlayerInfoListener mOnInfoListener;
     private VideoPlayer.OnPlayerSeekCompleteListener mOnSeekCompleteListener;
-    
-    
-    
+
+
+
     private int mCurrentBufferPercentage;
-    
-    
-    private int mSeekWhenPrepared;  // recording the seek position while preparing  
+
+
+    private int mSeekWhenPrepared;  // recording the seek position while preparing
     private boolean mCanPause = true;
     private boolean mCanSeekBack = true;
     private boolean mCanSeekForward = true;
@@ -84,7 +84,7 @@ public class VPlayer {
             mSeekWhenPrepared = 0;
     	}
     }
-   
+
    public void setSurface(Surface surface)
    {
 		mMediaPlayer.setSurface(surface);
@@ -92,13 +92,13 @@ public class VPlayer {
    public void setSpeedEnable()
    {
 	   if(mMediaPlayer!=null){
-		   mMediaPlayer.setSpeedEnable();   
+		   mMediaPlayer.setSpeedEnable();
 	   }
    }
    public void setSpeed(float speed)
    {
 	   if(mMediaPlayer!=null){
-		   mMediaPlayer.setSpeed(speed);   
+		   mMediaPlayer.setSpeed(speed);
 	   }
    }
    public void setExactlySeekEnable(boolean is)
@@ -124,7 +124,7 @@ public class VPlayer {
             mMediaPlayer.setOnBufferingUpdateListener(mBufferingUpdateListener);
             mMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
             mMediaPlayer.setOnPlayeFrameUpdateListener(mOnPlayerFrameUpdateListener);
-            
+
             mCurrentBufferPercentage = 0;
             mMediaPlayer.setDataSource(mAppContext, mUri);
 
@@ -166,7 +166,7 @@ public class VPlayer {
 
             mMainVideoWidth = mp.getVideoWidth();
             mMainVideoHeight = mp.getVideoHeight();
-            
+
             int seekToPosition = mSeekWhenPrepared;  // mSeekWhenPrepared may be changed after seekTo() call
             if (seekToPosition != 0) {
                 seekTo(seekToPosition);
@@ -174,7 +174,7 @@ public class VPlayer {
             if (mOnPreparedListener != null) {
                 mOnPreparedListener.onPrepared(mMediaPlayer);
             }
-            
+
         }
     };
 
@@ -218,7 +218,7 @@ public class VPlayer {
                 }
             };
 
-  
+
     public void setOnPreparedListener(VideoPlayer.OnPlayerPreparedListener l) {
         mOnPreparedListener = l;
     }
@@ -247,8 +247,8 @@ public class VPlayer {
     public void setOnErrorListener(VideoPlayer.OnPlayerErrorListener l) {
         mOnErrorListener = l;
     }
-    
-    
+
+
     public void setOnSeekCompleteListener(VideoPlayer.OnPlayerSeekCompleteListener l)
     {
     	mOnSeekCompleteListener=l;
@@ -291,7 +291,7 @@ public class VPlayer {
             }
         }
     }
-    
+
     public void stop() {
         if (mMediaPlayer != null) {
             mMediaPlayer.stop();
@@ -309,16 +309,16 @@ public class VPlayer {
     	if(mMediaPlayer!=null)
     		mMediaPlayer.setLooping(looping);
     }
-    
+
     public   boolean isLooping(){
     	 return (mMediaPlayer!=null) ? mMediaPlayer.isLooping(): false;
     }
-    
+
     public void setVolume(float leftVolume, float rightVolume){
     	if(mMediaPlayer!=null)
     		mMediaPlayer.setVolume(leftVolume, rightVolume);
     }
-    
+
     public int getDuration() {
         if (isInPlaybackState()) {
             return (int) mMediaPlayer.getDuration();
