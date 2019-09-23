@@ -764,9 +764,22 @@ public class EditVideoActivity extends BaseActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mMediaPlayer.release();
+    protected void onPause() {
+        super.onPause();
+
+        if(mMediaPlayer != null){
+            mMediaPlayer.release();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(mMediaPlayer != null){
+            initMediaPlay(surfaceTexture);
+            initVideoSize();
+        }
     }
 
     @Override
@@ -774,8 +787,6 @@ public class EditVideoActivity extends BaseActivity {
 
         if (resultCode == RESULT_OK) {
             path = data.getStringExtra(RecordedActivity.INTENT_PATH);
-            initMediaPlay(surfaceTexture);
-            initVideoSize();
         }
     }
 }

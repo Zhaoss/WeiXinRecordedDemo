@@ -19,7 +19,7 @@ import java.util.List;
  * 手绘涂鸦界面
  */
 
-    public class TuyaView extends View {
+public class TuyaView extends View {
 
     private Paint mPaint;
     private Path mPath;
