@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ProjectDictionaryState">
+    <dictionary name="zhaoshuang" />
+  </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
       <profile-state>
         <expanded-state>
           <State />
           <State>
-            <id>Abstraction issuesJava</id>
-          </State>
-          <State>
-            <id>AccessibilityLintAndroid</id>
-          </State>
-          <State>
             <id>Android</id>
           </State>
           <State>
-            <id>Bidirectional TextInternationalizationLintAndroid</id>
+            <id>Assignment issuesJava</id>
+          </State>
+          <State>
+            <id>Bitwise operation issuesJava</id>
+          </State>
+          <State>
+            <id>C/C++</id>
           </State>
           <State>
             <id>Class structureJava</id>
@@ -30,28 +33,43 @@
             <id>Code style issuesJava</id>
           </State>
           <State>
+            <id>ComplianceLintAndroid</id>
+          </State>
+          <State>
+            <id>Control flow issuesJava</id>
+          </State>
+          <State>
             <id>CorrectnessLintAndroid</id>
+          </State>
+          <State>
+            <id>EncapsulationJava</id>
+          </State>
+          <State>
+            <id>Error handlingJava</id>
+          </State>
+          <State>
+            <id>General</id>
+          </State>
+          <State>
+            <id>GeneralC/C++</id>
+          </State>
+          <State>
+            <id>GeneralObjective-C</id>
           </State>
           <State>
             <id>Groovy</id>
           </State>
           <State>
+            <id>IconsUsabilityLintAndroid</id>
+          </State>
+          <State>
             <id>ImportsJava</id>
           </State>
           <State>
-            <id>Inheritance issuesJava</id>
-          </State>
-          <State>
-            <id>InitializationJava</id>
-          </State>
-          <State>
-            <id>InternationalizationJava</id>
-          </State>
-          <State>
-            <id>InternationalizationLintAndroid</id>
-          </State>
-          <State>
             <id>J2ME issuesJava</id>
+          </State>
+          <State>
+            <id>JUnitJava</id>
           </State>
           <State>
             <id>Java</id>
@@ -60,25 +78,52 @@
             <id>JavadocJava</id>
           </State>
           <State>
+            <id>Kotlin</id>
+          </State>
+          <State>
             <id>LintAndroid</id>
           </State>
           <State>
-            <id>LoggingJava</id>
+            <id>LintLintAndroid</id>
           </State>
           <State>
-            <id>Numeric issuesJava</id>
+            <id>Manifest</id>
           </State>
           <State>
-            <id>PerformanceJava</id>
+            <id>MemoryJava</id>
+          </State>
+          <State>
+            <id>MessagesCorrectnessLintAndroid</id>
+          </State>
+          <State>
+            <id>Modularization issuesJava</id>
+          </State>
+          <State>
+            <id>Naming conventionsJava</id>
+          </State>
+          <State>
+            <id>Objective-C</id>
           </State>
           <State>
             <id>PerformanceLintAndroid</id>
           </State>
           <State>
-            <id>Potentially confusing code constructsGroovy</id>
+            <id>PortabilityJava</id>
           </State>
           <State>
             <id>Probable bugsJava</id>
+          </State>
+          <State>
+            <id>Properties Files</id>
+          </State>
+          <State>
+            <id>RELAX NG</id>
+          </State>
+          <State>
+            <id>Redundant constructsKotlin</id>
+          </State>
+          <State>
+            <id>RegExp</id>
           </State>
           <State>
             <id>Resource managementJava</id>
@@ -93,20 +138,33 @@
             <id>Serialization issuesJava</id>
           </State>
           <State>
+            <id>Style issuesKotlin</id>
+          </State>
+          <State>
+            <id>TestingLintAndroid</id>
+          </State>
+          <State>
+            <id>Threading issuesGroovy</id>
+          </State>
+          <State>
             <id>Threading issuesJava</id>
+          </State>
+          <State>
+            <id>TypographyUsabilityLintAndroid</id>
+          </State>
+          <State>
+            <id>Unused codeC/C++</id>
           </State>
           <State>
             <id>UsabilityLintAndroid</id>
           </State>
           <State>
-            <id>toString() issuesJava</id>
+            <id>Verbose or redundant code constructsJava</id>
+          </State>
+          <State>
+            <id>VisibilityJava</id>
           </State>
         </expanded-state>
-        <selected-state>
-          <State>
-            <id>Android</id>
-          </State>
-        </selected-state>
       </profile-state>
     </entry>
   </component>
