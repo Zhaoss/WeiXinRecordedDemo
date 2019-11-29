@@ -6,7 +6,6 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
-import android.util.Log;
 
 import com.libyuv.LibyuvUtil;
 
@@ -20,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RecordUtil {
 
     public final static int TIMEOUT_USEC = 10000;
-    public final static int frameRate = 30;
+    public final static int frameRate = 24;
     public final static int frameTime = 1000/frameRate;
     public final static int sampleRateInHz = 44100;
     public final static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
@@ -38,6 +37,7 @@ public class RecordUtil {
     private FileOutputStream audioOut;
     private int rotation;
     private boolean isFrontCamera;
+    private ByteBuffer frameBuffer;
 
     public RecordUtil(String videoPath, String audioPath, int videoWidth, int videoHeight, int rotation, boolean isFrontCamera){
 
@@ -45,6 +45,7 @@ public class RecordUtil {
         this.videoHeight = videoHeight;
         this.rotation = rotation;
         this.isFrontCamera = isFrontCamera;
+        frameBuffer = ByteBuffer.allocateDirect(1024*100);
 
         try {
             initVideoMediaCodec();
@@ -166,7 +167,6 @@ public class RecordUtil {
     private byte[] configByte;
     private void encodeVideo(byte[] nv21)throws IOException {
 
-        currFrame++;
         if(checkMaxFrame()){
             currFrame--;
             return ;
@@ -195,6 +195,8 @@ public class RecordUtil {
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         //读取MediaCodec编码后的数据
         int outputIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
+
+        boolean keyFrame = false;
         while (outputIndex >= 0) {
             ByteBuffer outputBuffer = videoMediaCodec.getOutputBuffer(outputIndex);
             byte[] h264 = new byte[bufferInfo.size];
@@ -204,30 +206,54 @@ public class RecordUtil {
                 case MediaCodec.BUFFER_FLAG_CODEC_CONFIG://视频信息
                     configByte = new byte[bufferInfo.size];
                     configByte = h264;
-                    Log.i("Log.i", configByte.length+"   aaa");
                     break;
                 case MediaCodec.BUFFER_FLAG_KEY_FRAME://关键帧
-                    videoOut.write(configByte, 0, configByte.length);
-                    videoOut.write(h264, 0, h264.length);
+                    frameBuffer.put(configByte);
+                    frameBuffer.put(h264);
+                    keyFrame = true;
                     break;
                 default://正常帧
-                    videoOut.write(h264, 0, h264.length);
+                    frameBuffer.put(h264);
                     break;
             }
-            videoOut.flush();
             //数据写入本地成功 通知MediaCodec释放data
             videoMediaCodec.releaseOutputBuffer(outputIndex, false);
             //读取下一次编码数据
             outputIndex = videoMediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
+        }
+
+        if(frameBuffer.position() > 0){
+            byte[] frameByte = new byte[frameBuffer.position()];
+            frameBuffer.flip();
+            frameBuffer.get(frameByte);
+            frameBuffer.clear();
+
+            currFrame++;
+            videoOut.write(frameByte, 0, frameByte.length);
+            videoOut.flush();
+
+            while (keyFrame && checkMinFrame()){
+                currFrame++;
+                videoOut.write(frameByte, 0, frameByte.length);
+                videoOut.flush();
+            }
         }
     }
 
     private long startTime = 0;
     private int currFrame = 0;
     private boolean checkMaxFrame(){
-
         int rightFrame = (int) ((System.currentTimeMillis()-startTime)/frameTime);
         if (currFrame > rightFrame) {
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private boolean checkMinFrame(){
+        int rightFrame = (int) ((System.currentTimeMillis()-startTime)/frameTime);
+        if (currFrame < rightFrame) {
             return true;
         }else{
             return false;
