@@ -33,8 +33,8 @@
 
 # [如果想了解实现思路, 这里有详细源码分析讲解](https://juejin.im/post/5d6ce742e51d456206115a5b)
 
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo1.png?raw=true)
-![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/demo2.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/img1.png?raw=true)
+![image](https://github.com/Zhaoss/WeiXinRecordedDemo/blob/master/Image/img2.png?raw=true)
 
 ### <a href="https://github.com/LanSoSdk/LanSoEditor_common" target="_blank">本项目使用的ffmpeg库是LanSoEditor<a>
 * * *   
